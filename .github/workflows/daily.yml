@@ -1,0 +1,322 @@
+name: Daily Activity Check
+
+on:
+  schedule:
+    - cron: '42 8 * * *'  # 8:42am UTC (~6:42pm AEST)
+  workflow_dispatch:       # manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate daily report and portfolio
+        env:
+          GH_TOKEN: ${{ secrets.DAILY_TOKEN }}
+        run: |
+          set -e
+          TODAY=$(date -u +%Y-%m-%d)
+          YEAR=$(date -u +%Y)
+          MONTH=$(date -u +%m)
+
+          mkdir -p "logs/$YEAR"
+          LOG="logs/$YEAR/$MONTH.md"
+
+          # Project registry: name|description|category
+          PROJECTS=(
+            "GlyphSketch|iPad app for sketching and prototyping typeface glyphs|Apps"
+            "FlightTracker|Cinematic ambient tvOS app — live flights on a satellite map|Apps"
+            "addend|Daily accountability menu bar app|Apps"
+            "recently|What have you enjoyed recently|Web"
+            "newRecently|Recently — next version|Web"
+            "Terrence|Personal portfolio — terrygillespie.com|Web"
+            "smallVictories|Photography portfolio — smallvictories.com.au|Web"
+            "sloooow-site|Sloooow — slow down and focus|Web"
+            "duodecimal|Base-12 clock|Web"
+            "linkterry|Link list|Web"
+            "airfresh|Air quality tracker|Web"
+            "concentric|Central clock face|Experiments"
+            "texasStackEm|Card game|Experiments"
+            "p5|p5.js sketch experiments with type|Experiments"
+            "prints|Prints by tezjnr|Creative"
+            "photographie|Postcards from Paris|Creative"
+            "daily|This repo — daily activity tracker|Meta"
+          )
+
+          # Collect data for each project
+          ENTRY="## $TODAY"$'\n'
+          ACTIVE=0
+          TOTAL=${#PROJECTS[@]}
+          PROJECT_DATA=""
+
+          for PROJECT in "${PROJECTS[@]}"; do
+            IFS='|' read -r REPO DESC CATEGORY <<< "$PROJECT"
+
+            COMMITS=$(gh api "repos/telemetry/$REPO/commits?since=${TODAY}T00:00:00Z&per_page=100" \
+              --jq 'length' 2>/dev/null || echo "0")
+
+            LAST=$(gh api "repos/telemetry/$REPO/commits?per_page=1" \
+              --jq '.[0].commit.committer.date // "unknown"' 2>/dev/null || echo "unknown")
+            LAST_SHORT=$(echo "$LAST" | cut -c1-10)
+
+            LAST_MSG=$(gh api "repos/telemetry/$REPO/commits?per_page=1" \
+              --jq '.[0].commit.message // ""' 2>/dev/null | head -1 || echo "")
+
+            if [ "$LAST_SHORT" != "unknown" ]; then
+              LAST_TS=$(date -d "$LAST_SHORT" +%s 2>/dev/null || echo "0")
+              TODAY_TS=$(date -d "$TODAY" +%s 2>/dev/null || echo "0")
+              if [ "$LAST_TS" != "0" ] && [ "$TODAY_TS" != "0" ]; then
+                DAYS_AGO=$(( (TODAY_TS - LAST_TS) / 86400 ))
+              else
+                DAYS_AGO="?"
+              fi
+            else
+              DAYS_AGO="?"
+            fi
+
+            # Status badge
+            if [ "$COMMITS" -gt 0 ] 2>/dev/null; then
+              STATUS="active"
+              ACTIVE=$((ACTIVE + 1))
+              ENTRY+="- **$REPO**: $COMMITS commit(s)"$'\n'
+            elif [ "$DAYS_AGO" != "?" ] && [ "$DAYS_AGO" -le 7 ]; then
+              STATUS="recent"
+              ENTRY+="- $REPO: $DAYS_AGO days"$'\n'
+            elif [ "$DAYS_AGO" != "?" ] && [ "$DAYS_AGO" -le 30 ]; then
+              STATUS="idle"
+              ENTRY+="- $REPO: $DAYS_AGO days"$'\n'
+            else
+              STATUS="stale"
+              ENTRY+="- ~$REPO~: $DAYS_AGO days"$'\n'
+            fi
+
+            # Escape for HTML
+            LAST_MSG_ESC=$(echo "$LAST_MSG" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g')
+            DESC_ESC=$(echo "$DESC" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g')
+
+            PROJECT_DATA+="${REPO}|${DESC_ESC}|${CATEGORY}|${STATUS}|${DAYS_AGO}|${LAST_MSG_ESC}|${COMMITS}"$'\n'
+          done
+
+          ENTRY+=$'\n'"**$ACTIVE/$TOTAL repos active**"$'\n\n---\n'
+
+          # Prepend to monthly log
+          if [ -f "$LOG" ]; then
+            echo "$ENTRY" | cat - "$LOG" > tmp && mv tmp "$LOG"
+          else
+            echo "# Activity — $YEAR-$MONTH"$'\n' > "$LOG"
+            echo "$ENTRY" >> "$LOG"
+          fi
+
+          # Streak tracking
+          STREAK_FILE=".streak"
+          if [ -f "$STREAK_FILE" ]; then
+            LAST_DATE=$(head -1 "$STREAK_FILE")
+            LAST_STREAK=$(tail -1 "$STREAK_FILE")
+          else
+            LAST_DATE=""
+            LAST_STREAK=0
+          fi
+
+          if [ "$ACTIVE" -gt 0 ]; then
+            YESTERDAY=$(date -d "$TODAY - 1 day" +%Y-%m-%d 2>/dev/null)
+            if [ "$LAST_DATE" = "$YESTERDAY" ] || [ "$LAST_DATE" = "$TODAY" ]; then
+              NEW_STREAK=$((LAST_STREAK + 1))
+            else
+              NEW_STREAK=1
+            fi
+          else
+            NEW_STREAK=0
+          fi
+
+          echo "$TODAY" > "$STREAK_FILE"
+          echo "$NEW_STREAK" >> "$STREAK_FILE"
+
+          # Generate HTML portfolio
+          cat > index.html << 'HTMLEOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Daily — Project Dashboard</title>
+            <style>
+              :root {
+                --bg: #F9F6EE;
+                --text: #0a131d;
+                --muted: slategray;
+                --border: #e5e5e5;
+                --active: #3da12a;
+                --recent: #52c234;
+                --idle: #e6a817;
+                --stale: #c0392b;
+              }
+              @media (prefers-color-scheme: dark) {
+                :root {
+                  --bg: #0a131d;
+                  --text: #E8E4DD;
+                  --muted: #8893a2;
+                  --border: #2a3545;
+                }
+              }
+              *, *::before, *::after { box-sizing: border-box; margin: 0; }
+              body {
+                font-family: "Inclusive Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                max-width: 960px;
+                margin: 0 auto;
+                padding: 48px 24px;
+                line-height: 1.5;
+              }
+              h1 { font-size: 3rem; font-weight: 200; letter-spacing: -0.03em; margin-bottom: 8px; }
+              .subtitle { color: var(--muted); font-size: 1.1rem; font-weight: 300; margin-bottom: 48px; }
+              .streak { font-size: 1.5rem; font-weight: 300; margin-bottom: 48px; }
+              .streak strong { font-weight: 600; }
+              .category { margin-bottom: 40px; }
+              .category-label {
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--muted);
+                margin-bottom: 12px;
+              }
+              .project {
+                display: flex;
+                align-items: baseline;
+                gap: 12px;
+                padding: 14px 0;
+                border-bottom: 1px solid var(--border);
+                text-decoration: none;
+                color: var(--text);
+                transition: opacity 0.15s;
+              }
+              .project:hover { opacity: 0.7; }
+              .project-name { font-size: 1.25rem; font-weight: 400; }
+              .project-desc { font-size: 0.875rem; color: var(--muted); font-weight: 300; flex: 1; }
+              .project-status {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                flex-shrink: 0;
+              }
+              .status-active { background: var(--active); box-shadow: 0 0 6px var(--active); }
+              .status-recent { background: var(--recent); }
+              .status-idle { background: var(--idle); }
+              .status-stale { background: var(--stale); opacity: 0.5; }
+              .project-meta {
+                font-size: 0.75rem;
+                color: var(--muted);
+                white-space: nowrap;
+              }
+              .last-commit {
+                font-size: 0.75rem;
+                color: var(--muted);
+                font-style: italic;
+                max-width: 200px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+              .footer {
+                margin-top: 48px;
+                padding-top: 24px;
+                border-top: 1px dashed var(--border);
+                font-size: 0.8rem;
+                color: var(--muted);
+              }
+              @media (max-width: 640px) {
+                h1 { font-size: 2rem; }
+                .project { flex-wrap: wrap; gap: 4px; }
+                .project-desc { width: 100%; order: 3; }
+                .last-commit { display: none; }
+              }
+            </style>
+          </head>
+          <body>
+          HTMLEOF
+
+          # Remove leading whitespace
+          sed -i 's/^          //' index.html 2>/dev/null || sed -i '' 's/^          //' index.html
+
+          # Add dynamic content
+          cat >> index.html << EOF
+          <h1>Daily</h1>
+          <p class="subtitle">Project dashboard for Terry Gillespie</p>
+          <p class="streak">Current streak: <strong>${NEW_STREAK} day(s)</strong> &mdash; ${ACTIVE}/${TOTAL} repos active &mdash; ${TODAY}</p>
+          EOF
+          sed -i 's/^          //' index.html 2>/dev/null || sed -i '' 's/^          //' index.html
+
+          # Group projects by category
+          CATEGORIES=("Apps" "Web" "Creative" "Experiments" "Meta")
+
+          for CAT in "${CATEGORIES[@]}"; do
+            echo "<div class=\"category\">" >> index.html
+            echo "<div class=\"category-label\">$CAT</div>" >> index.html
+
+            echo "$PROJECT_DATA" | while IFS='|' read -r REPO DESC CATEGORY STATUS DAYS LASTMSG COMMITS; do
+              [ -z "$REPO" ] && continue
+              [ "$CATEGORY" != "$CAT" ] && continue
+
+              if [ "$DAYS" = "0" ]; then
+                META="today"
+              elif [ "$DAYS" = "1" ]; then
+                META="yesterday"
+              elif [ "$DAYS" = "?" ]; then
+                META=""
+              else
+                META="${DAYS}d ago"
+              fi
+
+              cat >> index.html << PROJEOF
+          <a class="project" href="https://github.com/telemetry/${REPO}" target="_blank" rel="noopener">
+            <span class="project-status status-${STATUS}"></span>
+            <span class="project-name">${REPO}</span>
+            <span class="project-desc">${DESC}</span>
+            <span class="last-commit">${LASTMSG}</span>
+            <span class="project-meta">${META}</span>
+          </a>
+          PROJEOF
+            done
+
+            echo "</div>" >> index.html
+          done
+
+          cat >> index.html << 'HTMLEOF'
+          <div class="footer">
+            Auto-updated daily by GitHub Actions.
+            <span style="float:right"><span class="project-status status-active" style="display:inline-block;vertical-align:middle"></span> today
+            &nbsp; <span class="project-status status-recent" style="display:inline-block;vertical-align:middle"></span> &lt;7d
+            &nbsp; <span class="project-status status-idle" style="display:inline-block;vertical-align:middle"></span> &lt;30d
+            &nbsp; <span class="project-status status-stale" style="display:inline-block;vertical-align:middle;opacity:0.5"></span> 30d+</span>
+          </div>
+          </body>
+          </html>
+          HTMLEOF
+          sed -i 's/^          //' index.html 2>/dev/null || sed -i '' 's/^          //' index.html
+
+          # Update README
+          cat > README.md << EOF
+          # daily
+
+          Private project dashboard and daily activity tracker.
+
+          Auto-checks all repos daily, logs activity, tracks commit streak.
+
+          **Current streak: ${NEW_STREAK} day(s)** — Last check: ${TODAY}
+
+          See [logs/${YEAR}/${MONTH}.md](logs/${YEAR}/${MONTH}.md) for the daily log.
+          EOF
+          sed -i 's/^          //' README.md 2>/dev/null || sed -i '' 's/^          //' README.md
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "$(date -u +%Y-%m-%d) activity check"
+          git push

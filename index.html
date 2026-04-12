@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily — Project Dashboard</title>
+  <style>
+    :root {
+      --bg: #F9F6EE;
+      --text: #0a131d;
+      --muted: slategray;
+      --border: #e5e5e5;
+      --active: #3da12a;
+      --recent: #52c234;
+      --idle: #e6a817;
+      --stale: #c0392b;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0a131d;
+        --text: #E8E4DD;
+        --muted: #8893a2;
+        --border: #2a3545;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; }
+    body {
+      font-family: "Inclusive Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      line-height: 1.5;
+    }
+    h1 { font-size: 3rem; font-weight: 200; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .subtitle { color: var(--muted); font-size: 1.1rem; font-weight: 300; margin-bottom: 48px; }
+    .streak { font-size: 1.5rem; font-weight: 300; margin-bottom: 48px; }
+    .streak strong { font-weight: 600; }
+    .category { margin-bottom: 40px; }
+    .category-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .project {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--text);
+      transition: opacity 0.15s;
+    }
+    .project:hover { opacity: 0.7; }
+    .project-name { font-size: 1.25rem; font-weight: 400; }
+    .project-desc { font-size: 0.875rem; color: var(--muted); font-weight: 300; flex: 1; }
+    .project-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-active { background: var(--active); box-shadow: 0 0 6px var(--active); }
+    .status-recent { background: var(--recent); }
+    .status-idle { background: var(--idle); }
+    .status-stale { background: var(--stale); opacity: 0.5; }
+    .project-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .last-commit {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-style: italic;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px dashed var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    @media (max-width: 640px) {
+      h1 { font-size: 2rem; }
+      .project { flex-wrap: wrap; gap: 4px; }
+      .project-desc { width: 100%; order: 3; }
+      .last-commit { display: none; }
+    }
+  </style>
+</head>
+<body>
+<h1>Daily</h1>
+<p class="subtitle">Project dashboard for Terry Gillespie</p>
+<p class="streak">Current streak: <strong>0 day(s)</strong> &mdash; 0/17 repos active &mdash; 2026-04-12</p>
+<div class="category">
+<div class="category-label">Apps</div>
+<a class="project" href="https://github.com/telemetry/GlyphSketch" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">GlyphSketch</span>
+  <span class="project-desc">iPad app for sketching and prototyping typeface glyphs</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/FlightTracker" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">FlightTracker</span>
+  <span class="project-desc">Cinematic ambient tvOS app — live flights on a satellite map</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/addend" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">addend</span>
+  <span class="project-desc">Daily accountability menu bar app</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+</div>
+<div class="category">
+<div class="category-label">Web</div>
+<a class="project" href="https://github.com/telemetry/recently" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">recently</span>
+  <span class="project-desc">What have you enjoyed recently</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/newRecently" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">newRecently</span>
+  <span class="project-desc">Recently — next version</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/Terrence" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">Terrence</span>
+  <span class="project-desc">Personal portfolio — terrygillespie.com</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/smallVictories" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">smallVictories</span>
+  <span class="project-desc">Photography portfolio — smallvictories.com.au</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/sloooow-site" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">sloooow-site</span>
+  <span class="project-desc">Sloooow — slow down and focus</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/duodecimal" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">duodecimal</span>
+  <span class="project-desc">Base-12 clock</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/linkterry" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">linkterry</span>
+  <span class="project-desc">Link list</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/airfresh" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">airfresh</span>
+  <span class="project-desc">Air quality tracker</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+</div>
+<div class="category">
+<div class="category-label">Creative</div>
+<a class="project" href="https://github.com/telemetry/prints" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">prints</span>
+  <span class="project-desc">Prints by tezjnr</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/photographie" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">photographie</span>
+  <span class="project-desc">Postcards from Paris</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+</div>
+<div class="category">
+<div class="category-label">Experiments</div>
+<a class="project" href="https://github.com/telemetry/concentric" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">concentric</span>
+  <span class="project-desc">Central clock face</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/texasStackEm" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">texasStackEm</span>
+  <span class="project-desc">Card game</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+<a class="project" href="https://github.com/telemetry/p5" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">p5</span>
+  <span class="project-desc">p5.js sketch experiments with type</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+</div>
+<div class="category">
+<div class="category-label">Meta</div>
+<a class="project" href="https://github.com/telemetry/daily" target="_blank" rel="noopener">
+  <span class="project-status status-stale"></span>
+  <span class="project-name">daily</span>
+  <span class="project-desc">This repo — daily activity tracker</span>
+  <span class="last-commit"></span>
+  <span class="project-meta"></span>
+</a>
+</div>
+<div class="footer">
+  Auto-updated daily by GitHub Actions.
+  <span style="float:right"><span class="project-status status-active" style="display:inline-block;vertical-align:middle"></span> today
+  &nbsp; <span class="project-status status-recent" style="display:inline-block;vertical-align:middle"></span> &lt;7d
+  &nbsp; <span class="project-status status-idle" style="display:inline-block;vertical-align:middle"></span> &lt;30d
+  &nbsp; <span class="project-status status-stale" style="display:inline-block;vertical-align:middle;opacity:0.5"></span> 30d+</span>
+</div>
+</body>
+</html>

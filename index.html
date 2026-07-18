@@ -35,8 +35,17 @@
     }
     h1 { font-size: 3rem; font-weight: 200; letter-spacing: -0.03em; margin-bottom: 8px; }
     .subtitle { color: var(--muted); font-size: 1.1rem; font-weight: 300; margin-bottom: 48px; }
-    .streak { font-size: 1.5rem; font-weight: 300; margin-bottom: 48px; }
+    .streak { font-size: 1.5rem; font-weight: 300; margin-bottom: 24px; }
     .streak strong { font-weight: 600; }
+    .focus {
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--idle);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 48px;
+      font-size: 1.05rem;
+    }
+    .focus-next { color: var(--muted); font-size: 0.85rem; }
     .category { margin-bottom: 40px; }
     .category-label {
       font-size: 0.75rem;
@@ -113,6 +122,10 @@
 <h1>Daily</h1>
 <p class="subtitle">Project dashboard for Terry Gillespie</p>
 <p class="streak">Current streak: <strong>1 day(s)</strong> &mdash; 7/26 repos active &mdash; 2026-07-18</p>
+<div class="focus">
+  🎯 <strong>Now: BiOS</strong> &mdash; Ship to the App Store, with a marketing page &mdash; idle 1249d 🔴<br>
+  <span class="focus-next">Next: Roadie Pro</span>
+</div>
 <div class="category">
 <div class="category-label">Apps</div>
 <a class="project" href="https://github.com/telemetry/GlyphSketch" target="_blank" rel="noopener">
@@ -192,7 +205,7 @@
   <span class="project-status status-active"></span>
   <span class="project-name">Terrence</span>
   <span class="project-desc">Personal portfolio — terrygillespie.com</span>
-  <span class="last-commit">Add reading: The Resonant Computing Manifesto</span>
+  <span class="last-commit">Add watching: How a Writer Uses AI Without Losing His Voice</span>
   <span class="project-meta">today</span>
 </a>
 <a class="project" href="https://github.com/telemetry/smallVictories" target="_blank" rel="noopener">
@@ -234,14 +247,14 @@
   <span class="project-status status-active"></span>
   <span class="project-name">roadiemusic</span><span class="project-owner">RM</span>
   <span class="project-desc">Roadie website</span>
-  <span class="last-commit">Create CNAME</span>
+  <span class="last-commit">Disable Jekyll so .well-known/apple-app-site-association serves</span>
   <span class="project-meta">today</span>
 </a>
 <a class="project" href="https://github.com/Recreational-Math/Recreational-Math.github.io" target="_blank" rel="noopener">
   <span class="project-status status-active"></span>
   <span class="project-name">Recreational-Math.github.io</span><span class="project-owner">RM</span>
   <span class="project-desc">recreationalmath.com.au — club site</span>
-  <span class="last-commit">Create CNAME</span>
+  <span class="last-commit">Show descriptions on mobile via stacked rows; note iPhone beta on recently</span>
   <span class="project-meta">today</span>
 </a>
 </div>
@@ -306,7 +319,7 @@
   <span class="project-status status-active"></span>
   <span class="project-name">daily</span>
   <span class="project-desc">This repo — daily activity tracker</span>
-  <span class="last-commit">Track repos across telemetry and Recreational-Math; fail loudly on bad token</span>
+  <span class="last-commit">Add focus queue: BiOS to App Store, nudge via issue when idle</span>
   <span class="project-meta">today</span>
 </a>
 </div>

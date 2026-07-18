@@ -19,6 +19,13 @@ jobs:
           GH_TOKEN: ${{ secrets.DAILY_TOKEN }}
         run: |
           set -e
+
+          # Fail loudly if the token is missing/expired instead of logging "? days" forever
+          if ! gh api user --jq .login > /dev/null; then
+            echo "::error::DAILY_TOKEN is missing, expired, or invalid. Create a classic PAT with 'repo' scope and run: gh secret set DAILY_TOKEN -R telemetry/daily"
+            exit 1
+          fi
+
           TODAY=$(date -u +%Y-%m-%d)
           YEAR=$(date -u +%Y)
           MONTH=$(date -u +%m)
@@ -26,44 +33,56 @@ jobs:
           mkdir -p "logs/$YEAR"
           LOG="logs/$YEAR/$MONTH.md"
 
-          # Project registry: name|description|category
+          # Project registry: owner/repo|description|category
           PROJECTS=(
-            "GlyphSketch|iPad app for sketching and prototyping typeface glyphs|Apps"
-            "FlightTracker|Cinematic ambient tvOS app — live flights on a satellite map|Apps"
-            "addend|Daily accountability menu bar app|Apps"
-            "recently|What have you enjoyed recently|Web"
-            "newRecently|Recently — next version|Web"
-            "Terrence|Personal portfolio — terrygillespie.com|Web"
-            "smallVictories|Photography portfolio — smallvictories.com.au|Web"
-            "sloooow-site|Sloooow — slow down and focus|Web"
-            "duodecimal|Base-12 clock|Web"
-            "linkterry|Link list|Web"
-            "airfresh|Air quality tracker|Web"
-            "concentric|Central clock face|Experiments"
-            "texasStackEm|Card game|Experiments"
-            "p5|p5.js sketch experiments with type|Experiments"
-            "prints|Prints by tezjnr|Creative"
-            "photographie|Postcards from Paris|Creative"
-            "daily|This repo — daily activity tracker|Meta"
+            "telemetry/GlyphSketch|iPad app for sketching and prototyping typeface glyphs|Apps"
+            "telemetry/FlightTracker|Cinematic ambient tvOS app — live flights on a satellite map|Apps"
+            "telemetry/addend|Daily accountability menu bar app|Apps"
+            "telemetry/GlyphsTemplateManager|Glyphs.app template plugin|Apps"
+            "Recreational-Math/roadie|Music curation — a tote bag full of albums|Apps"
+            "Recreational-Math/AnyTwo|Any-two-cards poker widget|Apps"
+            "Recreational-Math/BiOS|Biorhythms|Apps"
+            "Recreational-Math/BiOSCharts|Biorhythm charts|Apps"
+            "telemetry/recently|What have you enjoyed recently|Web"
+            "telemetry/newRecently|Recently — next version|Web"
+            "telemetry/Terrence|Personal portfolio — terrygillespie.com|Web"
+            "telemetry/smallVictories|Photography portfolio — smallvictories.com.au|Web"
+            "telemetry/sloooow-site|Sloooow — slow down and focus|Web"
+            "telemetry/duodecimal|Base-12 clock|Web"
+            "telemetry/linkterry|Link list|Web"
+            "telemetry/airfresh|Air quality tracker|Web"
+            "Recreational-Math/roadiemusic|Roadie website|Web"
+            "Recreational-Math/Recreational-Math.github.io|recreationalmath.com.au — club site|Web"
+            "telemetry/concentric|Central clock face|Experiments"
+            "telemetry/texasStackEm|Card game|Experiments"
+            "telemetry/p5|p5.js sketch experiments with type|Experiments"
+            "telemetry/prints|Prints by tezjnr|Creative"
+            "telemetry/photographie|Postcards from Paris|Creative"
+            "telemetry/build-day|Build Day ambient animations and stills|Creative"
+            "telemetry/claude-sync|Memory + skills sync between Macs|Meta"
+            "telemetry/daily|This repo — daily activity tracker|Meta"
           )
 
           # Collect data for each project
           ENTRY="## $TODAY"$'\n'
           ACTIVE=0
+          FAILED=0
           TOTAL=${#PROJECTS[@]}
           PROJECT_DATA=""
 
           for PROJECT in "${PROJECTS[@]}"; do
-            IFS='|' read -r REPO DESC CATEGORY <<< "$PROJECT"
+            IFS='|' read -r FULL DESC CATEGORY <<< "$PROJECT"
+            OWNER="${FULL%%/*}"
+            REPO="${FULL##*/}"
 
-            COMMITS=$(gh api "repos/telemetry/$REPO/commits?since=${TODAY}T00:00:00Z&per_page=100" \
+            COMMITS=$(gh api "repos/$FULL/commits?since=${TODAY}T00:00:00Z&per_page=100" \
               --jq 'length' 2>/dev/null || echo "0")
 
-            LAST=$(gh api "repos/telemetry/$REPO/commits?per_page=1" \
+            LAST=$(gh api "repos/$FULL/commits?per_page=1" \
               --jq '.[0].commit.committer.date // "unknown"' 2>/dev/null || echo "unknown")
             LAST_SHORT=$(echo "$LAST" | cut -c1-10)
 
-            LAST_MSG=$(gh api "repos/telemetry/$REPO/commits?per_page=1" \
+            LAST_MSG=$(gh api "repos/$FULL/commits?per_page=1" \
               --jq '.[0].commit.message // ""' 2>/dev/null | head -1 || echo "")
 
             if [ "$LAST_SHORT" != "unknown" ]; then
@@ -76,32 +95,43 @@ jobs:
               fi
             else
               DAYS_AGO="?"
+              FAILED=$((FAILED + 1))
             fi
 
             # Status badge
             if [ "$COMMITS" -gt 0 ] 2>/dev/null; then
               STATUS="active"
               ACTIVE=$((ACTIVE + 1))
-              ENTRY+="- **$REPO**: $COMMITS commit(s)"$'\n'
+              ENTRY+="- **$FULL**: $COMMITS commit(s)"$'\n'
             elif [ "$DAYS_AGO" != "?" ] && [ "$DAYS_AGO" -le 7 ]; then
               STATUS="recent"
-              ENTRY+="- $REPO: $DAYS_AGO days"$'\n'
+              ENTRY+="- $FULL: $DAYS_AGO days"$'\n'
             elif [ "$DAYS_AGO" != "?" ] && [ "$DAYS_AGO" -le 30 ]; then
               STATUS="idle"
-              ENTRY+="- $REPO: $DAYS_AGO days"$'\n'
+              ENTRY+="- $FULL: $DAYS_AGO days"$'\n'
             else
               STATUS="stale"
-              ENTRY+="- ~$REPO~: $DAYS_AGO days"$'\n'
+              ENTRY+="- ~$FULL~: $DAYS_AGO days"$'\n'
             fi
 
             # Escape for HTML
             LAST_MSG_ESC=$(echo "$LAST_MSG" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g')
             DESC_ESC=$(echo "$DESC" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g')
 
-            PROJECT_DATA+="${REPO}|${DESC_ESC}|${CATEGORY}|${STATUS}|${DAYS_AGO}|${LAST_MSG_ESC}|${COMMITS}"$'\n'
+            PROJECT_DATA+="${OWNER}|${REPO}|${DESC_ESC}|${CATEGORY}|${STATUS}|${DAYS_AGO}|${LAST_MSG_ESC}|${COMMITS}"$'\n'
           done
 
-          ENTRY+=$'\n'"**$ACTIVE/$TOTAL repos active**"$'\n\n---\n'
+          # If every repo failed to read, the token has the wrong scopes — fail the run
+          if [ "$FAILED" -eq "$TOTAL" ]; then
+            echo "::error::All $TOTAL repo reads failed — DAILY_TOKEN needs 'repo' scope with access to telemetry and Recreational-Math"
+            exit 1
+          fi
+
+          ENTRY+=$'\n'"**$ACTIVE/$TOTAL repos active**"$'\n'
+          if [ "$FAILED" -gt 0 ]; then
+            ENTRY+=$'\n'"_${FAILED} repo(s) unreadable — check token scopes_"$'\n'
+          fi
+          ENTRY+=$'\n---\n'
 
           # Prepend to monthly log
           if [ -f "$LOG" ]; then
@@ -123,7 +153,9 @@ jobs:
 
           if [ "$ACTIVE" -gt 0 ]; then
             YESTERDAY=$(date -d "$TODAY - 1 day" +%Y-%m-%d 2>/dev/null)
-            if [ "$LAST_DATE" = "$YESTERDAY" ] || [ "$LAST_DATE" = "$TODAY" ]; then
+            if [ "$LAST_DATE" = "$TODAY" ]; then
+              NEW_STREAK=$LAST_STREAK
+            elif [ "$LAST_DATE" = "$YESTERDAY" ]; then
               NEW_STREAK=$((LAST_STREAK + 1))
             else
               NEW_STREAK=1
@@ -197,6 +229,17 @@ jobs:
               }
               .project:hover { opacity: 0.7; }
               .project-name { font-size: 1.25rem; font-weight: 400; }
+              .project-owner {
+                font-size: 0.65rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--muted);
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                padding: 1px 5px;
+                align-self: center;
+              }
               .project-desc { font-size: 0.875rem; color: var(--muted); font-weight: 300; flex: 1; }
               .project-status {
                 width: 8px;
@@ -258,7 +301,7 @@ jobs:
             echo "<div class=\"category\">" >> index.html
             echo "<div class=\"category-label\">$CAT</div>" >> index.html
 
-            echo "$PROJECT_DATA" | while IFS='|' read -r REPO DESC CATEGORY STATUS DAYS LASTMSG COMMITS; do
+            echo "$PROJECT_DATA" | while IFS='|' read -r OWNER REPO DESC CATEGORY STATUS DAYS LASTMSG COMMITS; do
               [ -z "$REPO" ] && continue
               [ "$CATEGORY" != "$CAT" ] && continue
 
@@ -272,10 +315,16 @@ jobs:
                 META="${DAYS}d ago"
               fi
 
+              if [ "$OWNER" = "Recreational-Math" ]; then
+                OWNER_TAG='<span class="project-owner">RM</span>'
+              else
+                OWNER_TAG=''
+              fi
+
               cat >> index.html << PROJEOF
-          <a class="project" href="https://github.com/telemetry/${REPO}" target="_blank" rel="noopener">
+          <a class="project" href="https://github.com/${OWNER}/${REPO}" target="_blank" rel="noopener">
             <span class="project-status status-${STATUS}"></span>
-            <span class="project-name">${REPO}</span>
+            <span class="project-name">${REPO}</span>${OWNER_TAG}
             <span class="project-desc">${DESC}</span>
             <span class="last-commit">${LASTMSG}</span>
             <span class="project-meta">${META}</span>
@@ -305,7 +354,7 @@ jobs:
 
           Private project dashboard and daily activity tracker.
 
-          Auto-checks all repos daily, logs activity, tracks commit streak.
+          Auto-checks repos across telemetry and Recreational-Math daily, logs activity, tracks commit streak.
 
           **Current streak: ${NEW_STREAK} day(s)** — Last check: ${TODAY}
 

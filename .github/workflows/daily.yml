@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   check:
@@ -15,6 +16,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Generate daily report and portfolio
+        id: report
         env:
           GH_TOKEN: ${{ secrets.DAILY_TOKEN }}
         run: |
@@ -62,6 +64,13 @@ jobs:
             "telemetry/claude-sync|Memory + skills sync between Macs|Meta"
             "telemetry/daily|This repo — daily activity tracker|Meta"
           )
+
+          # Focus queue — what the laser points at now, and what's next
+          FOCUS_REPO="Recreational-Math/BiOS"
+          FOCUS_GOAL="Ship to the App Store, with a marketing page"
+          FOCUS_NEXT="Roadie Pro"
+          FOCUS_DAYS="?"
+          FOCUS_COMMITS=0
 
           # Collect data for each project
           ENTRY="## $TODAY"$'\n'
@@ -119,6 +128,11 @@ jobs:
             DESC_ESC=$(echo "$DESC" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g')
 
             PROJECT_DATA+="${OWNER}|${REPO}|${DESC_ESC}|${CATEGORY}|${STATUS}|${DAYS_AGO}|${LAST_MSG_ESC}|${COMMITS}"$'\n'
+
+            if [ "$FULL" = "$FOCUS_REPO" ]; then
+              FOCUS_DAYS="$DAYS_AGO"
+              FOCUS_COMMITS="$COMMITS"
+            fi
           done
 
           # If every repo failed to read, the token has the wrong scopes — fail the run
@@ -127,7 +141,16 @@ jobs:
             exit 1
           fi
 
+          if [ "$FOCUS_COMMITS" -gt 0 ] 2>/dev/null; then
+            FOCUS_STATE="worked on today ✅"
+          elif [ "$FOCUS_DAYS" = "?" ]; then
+            FOCUS_STATE="unreadable"
+          else
+            FOCUS_STATE="idle ${FOCUS_DAYS}d 🔴"
+          fi
+
           ENTRY+=$'\n'"**$ACTIVE/$TOTAL repos active**"$'\n'
+          ENTRY+="Focus: **${FOCUS_REPO}** — ${FOCUS_GOAL} — ${FOCUS_STATE}"$'\n'
           if [ "$FAILED" -gt 0 ]; then
             ENTRY+=$'\n'"_${FAILED} repo(s) unreadable — check token scopes_"$'\n'
           fi
@@ -206,8 +229,17 @@ jobs:
               }
               h1 { font-size: 3rem; font-weight: 200; letter-spacing: -0.03em; margin-bottom: 8px; }
               .subtitle { color: var(--muted); font-size: 1.1rem; font-weight: 300; margin-bottom: 48px; }
-              .streak { font-size: 1.5rem; font-weight: 300; margin-bottom: 48px; }
+              .streak { font-size: 1.5rem; font-weight: 300; margin-bottom: 24px; }
               .streak strong { font-weight: 600; }
+              .focus {
+                border: 1px solid var(--border);
+                border-left: 3px solid var(--idle);
+                border-radius: 8px;
+                padding: 16px 20px;
+                margin-bottom: 48px;
+                font-size: 1.05rem;
+              }
+              .focus-next { color: var(--muted); font-size: 0.85rem; }
               .category { margin-bottom: 40px; }
               .category-label {
                 font-size: 0.75rem;
@@ -291,6 +323,10 @@ jobs:
           <h1>Daily</h1>
           <p class="subtitle">Project dashboard for Terry Gillespie</p>
           <p class="streak">Current streak: <strong>${NEW_STREAK} day(s)</strong> &mdash; ${ACTIVE}/${TOTAL} repos active &mdash; ${TODAY}</p>
+          <div class="focus">
+            🎯 <strong>Now: ${FOCUS_REPO##*/}</strong> &mdash; ${FOCUS_GOAL} &mdash; ${FOCUS_STATE}<br>
+            <span class="focus-next">Next: ${FOCUS_NEXT}</span>
+          </div>
           EOF
           sed -i 's/^          //' index.html 2>/dev/null || sed -i '' 's/^          //' index.html
 
@@ -362,6 +398,10 @@ jobs:
           EOF
           sed -i 's/^          //' README.md 2>/dev/null || sed -i '' 's/^          //' README.md
 
+          # Expose focus state to the nudge step
+          echo "focus_days=$FOCUS_DAYS" >> "$GITHUB_OUTPUT"
+          echo "focus_commits=$FOCUS_COMMITS" >> "$GITHUB_OUTPUT"
+
       - name: Commit and push
         run: |
           git config user.name "telemetry"
@@ -369,3 +409,25 @@ jobs:
           git add -A
           git diff --staged --quiet || git commit -m "$(date -u +%Y-%m-%d) activity check"
           git push
+
+      # Nudge via issue comment when the focus repo goes quiet. Comments come from
+      # github-actions[bot], so the @mention emails Terry (self-comments wouldn't).
+      - name: Nudge when focus is idle
+        if: steps.report.outputs.focus_commits == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FOCUS_DAYS: ${{ steps.report.outputs.focus_days }}
+        run: |
+          set -e
+          if [ "$FOCUS_DAYS" = "?" ] || [ "$FOCUS_DAYS" -lt 2 ]; then
+            echo "No nudge needed (focus idle: $FOCUS_DAYS)"
+            exit 0
+          fi
+          TITLE="Focus: BiOS — ship to the App Store"
+          NUM=$(gh issue list -R telemetry/daily --state open --search "in:title Focus: BiOS" --json number --jq '.[0].number // empty')
+          if [ -z "$NUM" ]; then
+            URL=$(gh issue create -R telemetry/daily --title "$TITLE" \
+              --body "Tracking the current focus: **Recreational-Math/BiOS** — App Store release + marketing page. The tracker nudges here when it goes quiet. Next up: Roadie Pro. Close this issue when BiOS ships.")
+            NUM="${URL##*/}"
+          fi
+          gh issue comment "$NUM" -R telemetry/daily --body "@telemetry — BiOS has had no commits for **${FOCUS_DAYS} days**. Point the laser. 🔴"

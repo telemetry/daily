@@ -65,12 +65,14 @@ jobs:
             "telemetry/daily|This repo — daily activity tracker|Meta"
           )
 
-          # Focus queue — what the laser points at now, and what's next
-          FOCUS_REPO="Recreational-Math/BiOS"
-          FOCUS_GOAL="Ship to the App Store, with a marketing page"
-          FOCUS_NEXT="Roadie Pro"
+          # Focus queue lives in focus.json — change it by ticking a 🎯 on the
+          # dashboard (handled by set-focus.yml) or by editing the file
+          FOCUS_REPO=$(jq -r '.repo' focus.json)
+          FOCUS_GOAL=$(jq -r '.goal' focus.json)
+          FOCUS_NEXT=$(jq -r '.next' focus.json)
           FOCUS_DAYS="?"
           FOCUS_COMMITS=0
+          MIN_DAYS="?"
 
           # Collect data for each project
           ENTRY="## $TODAY"$'\n'
@@ -132,6 +134,15 @@ jobs:
             if [ "$FULL" = "$FOCUS_REPO" ]; then
               FOCUS_DAYS="$DAYS_AGO"
               FOCUS_COMMITS="$COMMITS"
+            fi
+
+            # Most recent activity ANYWHERE (excluding this repo — its daily bot
+            # commits would always read as activity). Lets the nudge tell
+            # "busy on another project" apart from "gone quiet entirely".
+            if [ "$FULL" != "telemetry/daily" ] && [ "$DAYS_AGO" != "?" ]; then
+              if [ "$MIN_DAYS" = "?" ] || [ "$DAYS_AGO" -lt "$MIN_DAYS" ]; then
+                MIN_DAYS="$DAYS_AGO"
+              fi
             fi
           done
 
@@ -288,6 +299,17 @@ jobs:
                 color: var(--muted);
                 white-space: nowrap;
               }
+              .target {
+                flex-shrink: 0;
+                align-self: center;
+                font-size: 0.9rem;
+                opacity: 0.18;
+                filter: grayscale(1);
+                cursor: pointer;
+                transition: opacity 0.15s, filter 0.15s;
+              }
+              .target:hover { opacity: 1; filter: none; }
+              .target.current { opacity: 1; filter: none; cursor: default; }
               .last-commit {
                 font-size: 0.75rem;
                 color: var(--muted);
@@ -357,12 +379,21 @@ jobs:
                 OWNER_TAG=''
               fi
 
+              # Focus tick: current focus glows; ticking any other row opens a
+              # prefilled issue that set-focus.yml turns into the new focus
+              if [ "$OWNER/$REPO" = "$FOCUS_REPO" ]; then
+                TARGET='<span class="target current" title="Current focus">🎯</span>'
+              else
+                TARGET="<span class=\"target\" title=\"Make ${REPO} the focus\" onclick=\"event.preventDefault();event.stopPropagation();window.open('https://github.com/telemetry/daily/issues/new?title=focus%3A+${OWNER}%2F${REPO}&amp;body=goal%3A+Ship+it','_blank')\">🎯</span>"
+              fi
+
               cat >> index.html << PROJEOF
           <a class="project" href="https://github.com/${OWNER}/${REPO}" target="_blank" rel="noopener">
             <span class="project-status status-${STATUS}"></span>
             <span class="project-name">${REPO}</span>${OWNER_TAG}
             <span class="project-desc">${DESC}</span>
             <span class="last-commit">${LASTMSG}</span>
+            ${TARGET}
             <span class="project-meta">${META}</span>
           </a>
           PROJEOF
@@ -373,7 +404,7 @@ jobs:
 
           cat >> index.html << 'HTMLEOF'
           <div class="footer">
-            Auto-updated daily by GitHub Actions.
+            Auto-updated daily by GitHub Actions. Tick a dim 🎯 to retarget the focus.
             <span style="float:right"><span class="project-status status-active" style="display:inline-block;vertical-align:middle"></span> today
             &nbsp; <span class="project-status status-recent" style="display:inline-block;vertical-align:middle"></span> &lt;7d
             &nbsp; <span class="project-status status-idle" style="display:inline-block;vertical-align:middle"></span> &lt;30d
@@ -399,8 +430,10 @@ jobs:
           sed -i 's/^          //' README.md 2>/dev/null || sed -i '' 's/^          //' README.md
 
           # Expose focus state to the nudge step
+          echo "focus_repo=$FOCUS_REPO" >> "$GITHUB_OUTPUT"
           echo "focus_days=$FOCUS_DAYS" >> "$GITHUB_OUTPUT"
           echo "focus_commits=$FOCUS_COMMITS" >> "$GITHUB_OUTPUT"
+          echo "min_days=$MIN_DAYS" >> "$GITHUB_OUTPUT"
 
       - name: Commit and push
         run: |
@@ -412,22 +445,33 @@ jobs:
 
       # Nudge via issue comment when the focus repo goes quiet. Comments come from
       # github-actions[bot], so the @mention emails Terry (self-comments wouldn't).
-      - name: Nudge when focus is idle
+      # Only nudges when NOTHING has moved for 2+ days — activity on any other
+      # project counts as working, and working people don't need nudging.
+      - name: Nudge when idle everywhere
         if: steps.report.outputs.focus_commits == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FOCUS_REPO: ${{ steps.report.outputs.focus_repo }}
           FOCUS_DAYS: ${{ steps.report.outputs.focus_days }}
+          MIN_DAYS: ${{ steps.report.outputs.min_days }}
         run: |
           set -e
           if [ "$FOCUS_DAYS" = "?" ] || [ "$FOCUS_DAYS" -lt 2 ]; then
             echo "No nudge needed (focus idle: $FOCUS_DAYS)"
             exit 0
           fi
-          TITLE="Focus: BiOS — ship to the App Store"
-          NUM=$(gh issue list -R telemetry/daily --state open --search "in:title Focus: BiOS" --json number --jq '.[0].number // empty')
+          if [ "$MIN_DAYS" != "?" ] && [ "$MIN_DAYS" -lt 2 ]; then
+            echo "Actively working elsewhere (most recent activity ${MIN_DAYS}d ago) — no nudge"
+            exit 0
+          fi
+          NAME="${FOCUS_REPO##*/}"
+          TITLE="Focus: $NAME"
+          NUM=$(gh issue list -R telemetry/daily --state open --search "in:title Focus:" --json number --jq '.[0].number // empty')
           if [ -z "$NUM" ]; then
             URL=$(gh issue create -R telemetry/daily --title "$TITLE" \
-              --body "Tracking the current focus: **Recreational-Math/BiOS** — App Store release + marketing page. The tracker nudges here when it goes quiet. Next up: Roadie Pro. Close this issue when BiOS ships.")
+              --body "Tracking the current focus: **${FOCUS_REPO}**. The tracker nudges here when everything goes quiet. Retarget by ticking a 🎯 on the dashboard.")
             NUM="${URL##*/}"
+          else
+            gh issue edit "$NUM" -R telemetry/daily --title "$TITLE"
           fi
-          gh issue comment "$NUM" -R telemetry/daily --body "@telemetry — BiOS has had no commits for **${FOCUS_DAYS} days**. Point the laser. 🔴"
+          gh issue comment "$NUM" -R telemetry/daily --body "@telemetry — ${NAME} has had no commits for **${FOCUS_DAYS} days**, and nothing else is moving either. Point the laser. 🔴"

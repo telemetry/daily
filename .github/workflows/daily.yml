@@ -65,11 +65,13 @@ jobs:
             "telemetry/daily|This repo — daily activity tracker|Meta"
           )
 
-          # Focus queue lives in focus.json — change it by ticking a 🎯 on the
-          # dashboard (handled by set-focus.yml) or by editing the file
-          FOCUS_REPO=$(jq -r '.repo' focus.json)
-          FOCUS_GOAL=$(jq -r '.goal' focus.json)
-          FOCUS_NEXT=$(jq -r '.next' focus.json)
+          # Focus queue lives in focus.json as an ordered list — the TOP item is
+          # the one the nudge watches. Reorder by dragging on the dashboard or
+          # ticking a 🎯 (both go through set-focus.yml), or edit the file.
+          FOCUS_REPO=$(jq -r '.queue[0].repo' focus.json)
+          FOCUS_GOAL=$(jq -r '.queue[0].goal' focus.json)
+          FOCUS_NEXT=$(jq -r '.queue[1].repo // "—"' focus.json)
+          FOCUS_NEXT="${FOCUS_NEXT##*/}"
           FOCUS_DAYS="?"
           FOCUS_COMMITS=0
           MIN_DAYS="?"
@@ -310,6 +312,36 @@ jobs:
               }
               .target:hover { opacity: 1; filter: none; }
               .target.current { opacity: 1; filter: none; cursor: default; }
+              #queue { list-style: none; margin: 12px 0 0; padding: 0; counter-reset: q; }
+              .qitem {
+                display: flex;
+                align-items: baseline;
+                gap: 10px;
+                padding: 8px 4px;
+                border-top: 1px dashed var(--border);
+                cursor: grab;
+                counter-increment: q;
+              }
+              .qitem::before {
+                content: counter(q);
+                font-size: 0.7rem;
+                color: var(--muted);
+                min-width: 1em;
+                text-align: right;
+              }
+              .qitem:first-child .qname { font-weight: 600; }
+              .qitem.dragging { opacity: 0.4; }
+              .grip { color: var(--muted); cursor: grab; }
+              .qname { font-size: 0.95rem; }
+              .qgoal { font-size: 0.8rem; color: var(--muted); flex: 1; }
+              .qx {
+                color: var(--muted);
+                cursor: pointer;
+                padding: 0 6px;
+                opacity: 0.4;
+              }
+              .qx:hover { opacity: 1; color: var(--stale); }
+              #saveorder { display: inline-block; margin-top: 8px; color: var(--idle); text-decoration: none; font-weight: 600; }
               .last-commit {
                 font-size: 0.75rem;
                 color: var(--muted);
@@ -340,14 +372,23 @@ jobs:
           # Remove leading whitespace
           sed -i 's/^          //' index.html 2>/dev/null || sed -i '' 's/^          //' index.html
 
+          # Build the draggable queue list from focus.json
+          QUEUE_HTML=""
+          while IFS='|' read -r QREPO QGOAL; do
+            [ -z "$QREPO" ] && continue
+            QGOAL_ESC=$(echo "$QGOAL" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g')
+            QUEUE_HTML+="<li class=\"qitem\" draggable=\"true\" data-repo=\"${QREPO}\"><span class=\"grip\">⠿</span><span class=\"qname\">${QREPO##*/}</span><span class=\"qgoal\">${QGOAL_ESC}</span><span class=\"qx\" title=\"Remove from queue\">×</span></li>"
+          done < <(jq -r '.queue[] | .repo + "|" + .goal' focus.json)
+
           # Add dynamic content
           cat >> index.html << EOF
           <h1>Daily</h1>
           <p class="subtitle">Project dashboard for Terry Gillespie</p>
           <p class="streak">Current streak: <strong>${NEW_STREAK} day(s)</strong> &mdash; ${ACTIVE}/${TOTAL} repos active &mdash; ${TODAY}</p>
           <div class="focus">
-            🎯 <strong>Now: ${FOCUS_REPO##*/}</strong> &mdash; ${FOCUS_GOAL} &mdash; ${FOCUS_STATE}<br>
-            <span class="focus-next">Next: ${FOCUS_NEXT}</span>
+            🎯 <strong>Now: ${FOCUS_REPO##*/}</strong> &mdash; ${FOCUS_GOAL} &mdash; ${FOCUS_STATE}
+            <ol id="queue">${QUEUE_HTML}</ol>
+            <a id="saveorder" class="focus-next" hidden href="#">Save new order →</a>
           </div>
           EOF
           sed -i 's/^          //' index.html 2>/dev/null || sed -i '' 's/^          //' index.html
@@ -380,11 +421,11 @@ jobs:
               fi
 
               # Focus tick: current focus glows; ticking any other row opens a
-              # prefilled issue that set-focus.yml turns into the new focus
+              # prefilled issue that set-focus.yml puts at the top of the queue
               if [ "$OWNER/$REPO" = "$FOCUS_REPO" ]; then
                 TARGET='<span class="target current" title="Current focus">🎯</span>'
               else
-                TARGET="<span class=\"target\" title=\"Make ${REPO} the focus\" onclick=\"event.preventDefault();event.stopPropagation();window.open('https://github.com/telemetry/daily/issues/new?title=focus%3A+${OWNER}%2F${REPO}&amp;body=goal%3A+Ship+it','_blank')\">🎯</span>"
+                TARGET="<span class=\"target\" title=\"Make ${REPO} the focus\" onclick=\"event.preventDefault();event.stopPropagation();window.open('https://github.com/telemetry/daily/issues/new?title=focus%3A+${OWNER}%2F${REPO}&amp;body=Submit%20to%20put%20this%20repo%20at%20the%20top%20of%20the%20focus%20queue.%20Add%20a%20line%20%27goal%3A%20your%20goal%27%20to%20set%20its%20goal.','_blank')\">🎯</span>"
               fi
 
               cat >> index.html << PROJEOF
@@ -404,12 +445,54 @@ jobs:
 
           cat >> index.html << 'HTMLEOF'
           <div class="footer">
-            Auto-updated daily by GitHub Actions. Tick a dim 🎯 to retarget the focus.
+            Auto-updated daily by GitHub Actions. Tick a dim 🎯 to retarget the focus; drag the queue to reorder, then Save.
             <span style="float:right"><span class="project-status status-active" style="display:inline-block;vertical-align:middle"></span> today
             &nbsp; <span class="project-status status-recent" style="display:inline-block;vertical-align:middle"></span> &lt;7d
             &nbsp; <span class="project-status status-idle" style="display:inline-block;vertical-align:middle"></span> &lt;30d
             &nbsp; <span class="project-status status-stale" style="display:inline-block;vertical-align:middle;opacity:0.5"></span> 30d+</span>
           </div>
+          <script>
+          (function () {
+            var list = document.getElementById('queue');
+            var save = document.getElementById('saveorder');
+            if (!list || !save) return;
+            function repos() {
+              return Array.prototype.map.call(list.children, function (li) { return li.dataset.repo; });
+            }
+            var orig = repos().join(',');
+            var dragEl = null;
+            list.addEventListener('dragstart', function (e) {
+              dragEl = e.target.closest('.qitem');
+              if (dragEl) dragEl.classList.add('dragging');
+            });
+            list.addEventListener('dragover', function (e) {
+              e.preventDefault();
+              var li = e.target.closest('.qitem');
+              if (!li || !dragEl || li === dragEl) return;
+              var r = li.getBoundingClientRect();
+              var after = e.clientY > r.top + r.height / 2;
+              list.insertBefore(dragEl, after ? li.nextSibling : li);
+            });
+            list.addEventListener('drop', function (e) { e.preventDefault(); });
+            function refresh() {
+              if (dragEl) dragEl.classList.remove('dragging');
+              dragEl = null;
+              var now = repos().join(',');
+              if (now === orig || !now) { save.hidden = true; return; }
+              save.hidden = false;
+              save.href = 'https://github.com/telemetry/daily/issues/new'
+                + '?title=' + encodeURIComponent('queue: ' + now)
+                + '&body=' + encodeURIComponent('Reordered from the dashboard. Submit to apply.');
+            }
+            list.addEventListener('dragend', refresh);
+            list.addEventListener('click', function (e) {
+              if (e.target.classList.contains('qx')) {
+                e.target.closest('.qitem').remove();
+                refresh();
+              }
+            });
+          })();
+          </script>
           </body>
           </html>
           HTMLEOF

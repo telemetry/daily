@@ -1,8 +1,10 @@
 name: Set Focus
 
-# Ticking a 🎯 on the dashboard opens a prefilled issue titled "focus: owner/repo".
-# This workflow (only for issues opened by Terry) writes that into focus.json,
-# retitles the open nudge issue, closes the request, and refreshes the dashboard.
+# Two dashboard actions land here as prefilled issues (only Terry's are honored):
+#   "focus: owner/repo"            — put that repo at the top of the queue
+#   "queue: o/r1,o/r2,..."         — replace the queue order (from drag-and-drop)
+# The workflow updates focus.json, retitles the standing nudge issue, closes the
+# request, and re-runs daily.yml so the dashboard reflects the change.
 
 on:
   issues:
@@ -15,7 +17,7 @@ permissions:
 
 jobs:
   set-focus:
-    if: startsWith(github.event.issue.title, 'focus:') && github.event.issue.user.login == 'telemetry'
+    if: (startsWith(github.event.issue.title, 'focus:') || startsWith(github.event.issue.title, 'queue:')) && github.event.issue.user.login == 'telemetry'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,40 +31,59 @@ jobs:
           NUM: ${{ github.event.issue.number }}
         run: |
           set -e
-          NEW_REPO=$(echo "$TITLE" | sed 's/^focus:[[:space:]]*//' | tr -d '[:space:]')
 
-          if ! echo "$NEW_REPO" | grep -Eq '^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'; then
-            gh issue close "$NUM" --comment "Couldn't parse a repo out of the title — expected \`focus: owner/repo\`. Focus unchanged."
-            exit 0
+          if [[ "$TITLE" == queue:* ]]; then
+            LIST=$(echo "$TITLE" | sed 's/^queue:[[:space:]]*//' | tr -d '[:space:]')
+            if [ -z "$LIST" ] || ! echo "$LIST" | tr ',' '\n' | grep -Eq '^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'; then
+              gh issue close "$NUM" --comment "Couldn't parse a repo list out of the title — expected \`queue: owner/repo,owner/repo,...\`. Queue unchanged."
+              exit 0
+            fi
+            if echo "$LIST" | tr ',' '\n' | grep -Evq '^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'; then
+              gh issue close "$NUM" --comment "One of the entries isn't \`owner/repo\` shaped. Queue unchanged."
+              exit 0
+            fi
+            # Rebuild the queue in the requested order, keeping known goals
+            echo "$LIST" | jq -R 'split(",")' > /tmp/order.json
+            jq --slurpfile order /tmp/order.json '. as $f |
+              {queue: [$order[0][] | . as $r |
+                (first($f.queue[] | select(.repo == $r)) // {repo: $r, goal: "Ship it"})]}' \
+              focus.json > /tmp/focus.json && mv /tmp/focus.json focus.json
+            SUMMARY="Queue is now: $LIST"
+          else
+            NEW_REPO=$(echo "$TITLE" | sed 's/^focus:[[:space:]]*//' | tr -d '[:space:]')
+            if ! echo "$NEW_REPO" | grep -Eq '^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'; then
+              gh issue close "$NUM" --comment "Couldn't parse a repo out of the title — expected \`focus: owner/repo\`. Focus unchanged."
+              exit 0
+            fi
+            if ! GH_TOKEN="$READ_TOKEN" gh api "repos/$NEW_REPO" --jq .full_name > /dev/null; then
+              gh issue close "$NUM" --comment "\`$NEW_REPO\` isn't readable with DAILY_TOKEN — focus unchanged."
+              exit 0
+            fi
+            # Goal: explicit "goal:" line in the body > existing queue entry > default
+            GOAL_BODY=$(echo "$BODY" | grep -i '^goal:' | head -1 | sed 's/^[Gg]oal:[[:space:]]*//')
+            EXISTING_GOAL=$(jq -r --arg r "$NEW_REPO" 'first(.queue[] | select(.repo == $r).goal) // empty' focus.json)
+            GOAL="${GOAL_BODY:-${EXISTING_GOAL:-Ship it}}"
+            jq --arg r "$NEW_REPO" --arg g "$GOAL" \
+              '{queue: ([{repo: $r, goal: $g}] + [.queue[] | select(.repo != $r)])}' \
+              focus.json > /tmp/focus.json && mv /tmp/focus.json focus.json
+            SUMMARY="Focus is now **$NEW_REPO** — $GOAL"
           fi
 
-          if ! GH_TOKEN="$READ_TOKEN" gh api "repos/$NEW_REPO" --jq .full_name > /dev/null; then
-            gh issue close "$NUM" --comment "\`$NEW_REPO\` isn't readable with DAILY_TOKEN — focus unchanged."
-            exit 0
-          fi
-
-          # Optional "goal:" and "next:" lines in the issue body override focus.json
-          GOAL=$(echo "$BODY" | grep -i '^goal:' | head -1 | sed 's/^[Gg]oal:[[:space:]]*//')
-          NEXT=$(echo "$BODY" | grep -i '^next:' | head -1 | sed 's/^[Nn]ext:[[:space:]]*//')
-          [ -z "$GOAL" ] && GOAL=$(jq -r '.goal' focus.json)
-          [ -z "$NEXT" ] && NEXT=$(jq -r '.next' focus.json)
-
-          jq --arg r "$NEW_REPO" --arg g "$GOAL" --arg n "$NEXT" \
-            '.repo = $r | .goal = $g | .next = $n' focus.json > tmp.json && mv tmp.json focus.json
+          TOP=$(jq -r '.queue[0].repo' focus.json)
 
           git config user.name "telemetry"
           git config user.email "telemetry@users.noreply.github.com"
           git add focus.json
-          git diff --staged --quiet || git commit -m "focus -> $NEW_REPO"
+          git diff --staged --quiet || git commit -m "focus queue -> $TOP first"
           git push
 
-          # Keep the standing nudge issue's title in sync with the new focus
+          # Keep the standing nudge issue's title pointing at the new top
           NUDGE=$(gh issue list --state open --search "in:title Focus:" --json number --jq "[.[] | select(.number != ${NUM})][0].number // empty")
           if [ -n "$NUDGE" ]; then
-            gh issue edit "$NUDGE" --title "Focus: ${NEW_REPO##*/}"
+            gh issue edit "$NUDGE" --title "Focus: ${TOP##*/}"
           fi
 
-          gh issue close "$NUM" --comment "🎯 Focus is now **${NEW_REPO}** — ${GOAL}"
+          gh issue close "$NUM" --comment "🎯 $SUMMARY"
 
-          # Rebuild the dashboard so the new focus shows immediately
+          # Rebuild the dashboard so the change shows immediately
           gh workflow run daily.yml

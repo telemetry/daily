@@ -32,14 +32,17 @@ jobs:
         run: |
           set -e
 
+          REPO_LIST_RE='^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+(,[A-Za-z0-9._-]+/[A-Za-z0-9._-]+)*$'
+
           if [[ "$TITLE" == queue:* ]]; then
+            # The list rides in the title for short queues, or (because issue
+            # titles cap at 256 chars) as the first list-shaped line of the body
             LIST=$(echo "$TITLE" | sed 's/^queue:[[:space:]]*//' | tr -d '[:space:]')
-            if [ -z "$LIST" ] || ! echo "$LIST" | tr ',' '\n' | grep -Eq '^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'; then
-              gh issue close "$NUM" --comment "Couldn't parse a repo list out of the title — expected \`queue: owner/repo,owner/repo,...\`. Queue unchanged."
-              exit 0
+            if ! echo "$LIST" | grep -Eq "$REPO_LIST_RE"; then
+              LIST=$(echo "$BODY" | tr -d ' \r' | grep -E "$REPO_LIST_RE" | head -1)
             fi
-            if echo "$LIST" | tr ',' '\n' | grep -Evq '^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'; then
-              gh issue close "$NUM" --comment "One of the entries isn't \`owner/repo\` shaped. Queue unchanged."
+            if [ -z "$LIST" ]; then
+              gh issue close "$NUM" --comment "Couldn't find a repo list in the title or body — expected \`owner/repo,owner/repo,...\`. Queue unchanged."
               exit 0
             fi
             # Rebuild the queue in the requested order, keeping known goals

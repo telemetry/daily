@@ -1,6 +1,30 @@
 {
   "queue": [
     { "repo": "Recreational-Math/BiOSCharts", "goal": "Ship BiOS to the App Store, with a marketing page" },
-    { "repo": "Recreational-Math/roadie", "goal": "Roadie Pro — September launch" }
+    { "repo": "Recreational-Math/roadie", "goal": "Roadie Pro — September launch" },
+    { "repo": "telemetry/GlyphSketch", "goal": "iPad app for sketching and prototyping typeface glyphs" },
+    { "repo": "telemetry/FlightTracker", "goal": "Cinematic ambient tvOS app — live flights on a satellite map" },
+    { "repo": "telemetry/addend", "goal": "Daily accountability menu bar app" },
+    { "repo": "telemetry/GlyphsTemplateManager", "goal": "Glyphs.app template plugin" },
+    { "repo": "Recreational-Math/AnyTwo", "goal": "Any-two-cards poker widget" },
+    { "repo": "Recreational-Math/BiOS", "goal": "Biorhythms" },
+    { "repo": "telemetry/recently", "goal": "What have you enjoyed recently" },
+    { "repo": "telemetry/newRecently", "goal": "Recently — next version" },
+    { "repo": "telemetry/Terrence", "goal": "Personal portfolio — terrygillespie.com" },
+    { "repo": "telemetry/smallVictories", "goal": "Photography portfolio — smallvictories.com.au" },
+    { "repo": "telemetry/sloooow-site", "goal": "Sloooow — slow down and focus" },
+    { "repo": "telemetry/duodecimal", "goal": "Base-12 clock" },
+    { "repo": "telemetry/linkterry", "goal": "Link list" },
+    { "repo": "telemetry/airfresh", "goal": "Air quality tracker" },
+    { "repo": "Recreational-Math/roadiemusic", "goal": "Roadie website" },
+    { "repo": "Recreational-Math/Recreational-Math.github.io", "goal": "recreationalmath.com.au — club site" },
+    { "repo": "telemetry/concentric", "goal": "Central clock face" },
+    { "repo": "telemetry/texasStackEm", "goal": "Card game" },
+    { "repo": "telemetry/p5", "goal": "p5.js sketch experiments with type" },
+    { "repo": "telemetry/prints", "goal": "Prints by tezjnr" },
+    { "repo": "telemetry/photographie", "goal": "Postcards from Paris" },
+    { "repo": "telemetry/build-day", "goal": "Build Day ambient animations and stills" },
+    { "repo": "telemetry/claude-sync", "goal": "Memory + skills sync between Macs" },
+    { "repo": "telemetry/daily", "goal": "This repo — daily activity tracker" }
   ]
 }

@@ -317,7 +317,7 @@ jobs:
                 display: flex;
                 align-items: baseline;
                 gap: 10px;
-                padding: 8px 4px;
+                padding: 5px 4px;
                 border-top: 1px dashed var(--border);
                 cursor: grab;
                 counter-increment: q;
@@ -481,8 +481,8 @@ jobs:
               if (now === orig || !now) { save.hidden = true; return; }
               save.hidden = false;
               save.href = 'https://github.com/telemetry/daily/issues/new'
-                + '?title=' + encodeURIComponent('queue: ' + now)
-                + '&body=' + encodeURIComponent('Reordered from the dashboard. Submit to apply.');
+                + '?title=' + encodeURIComponent('queue: update')
+                + '&body=' + encodeURIComponent(now + '\n\nReordered from the dashboard. Submit to apply.');
             }
             list.addEventListener('dragend', refresh);
             list.addEventListener('click', function (e) {

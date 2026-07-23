@@ -317,7 +317,7 @@ jobs:
                 display: flex;
                 align-items: baseline;
                 gap: 10px;
-                padding: 5px 4px;
+                padding: 8px 4px;
                 border-top: 1px dashed var(--border);
                 cursor: grab;
                 counter-increment: q;

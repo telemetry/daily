@@ -526,25 +526,23 @@ jobs:
           git diff --staged --quiet || git commit -m "$(date -u +%Y-%m-%d) activity check"
           git push
 
-      # Nudge via issue comment when the focus repo goes quiet. Comments come from
+      # Nudge via issue comment when EVERYTHING goes quiet. Comments come from
       # github-actions[bot], so the @mention emails Terry (self-comments wouldn't).
-      # Only nudges when NOTHING has moved for 2+ days — activity on any other
-      # project counts as working, and working people don't need nudging.
+      # Rule: a commit to ANY project (not just the focus) within the last 2 days
+      # keeps it silent. The laser only comes out after 3+ quiet days everywhere.
       - name: Nudge when idle everywhere
-        if: steps.report.outputs.focus_commits == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FOCUS_REPO: ${{ steps.report.outputs.focus_repo }}
-          FOCUS_DAYS: ${{ steps.report.outputs.focus_days }}
           MIN_DAYS: ${{ steps.report.outputs.min_days }}
         run: |
           set -e
-          if [ "$FOCUS_DAYS" = "?" ] || [ "$FOCUS_DAYS" -lt 2 ]; then
-            echo "No nudge needed (focus idle: $FOCUS_DAYS)"
+          if [ "$MIN_DAYS" = "?" ]; then
+            echo "Activity unreadable — no nudge"
             exit 0
           fi
-          if [ "$MIN_DAYS" != "?" ] && [ "$MIN_DAYS" -lt 2 ]; then
-            echo "Actively working elsewhere (most recent activity ${MIN_DAYS}d ago) — no nudge"
+          if [ "$MIN_DAYS" -le 2 ]; then
+            echo "Something was worked on ${MIN_DAYS}d ago — no nudge"
             exit 0
           fi
           NAME="${FOCUS_REPO##*/}"
@@ -557,4 +555,4 @@ jobs:
           else
             gh issue edit "$NUM" -R telemetry/daily --title "$TITLE"
           fi
-          gh issue comment "$NUM" -R telemetry/daily --body "@telemetry — ${NAME} has had no commits for **${FOCUS_DAYS} days**, and nothing else is moving either. Point the laser. 🔴"
+          gh issue comment "$NUM" -R telemetry/daily --body "@telemetry — nothing has moved anywhere for **${MIN_DAYS} days**. Point the laser at **${NAME}**. 🔴"

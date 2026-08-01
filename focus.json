@@ -1,6 +1,12 @@
 {
   "queue": [
-    { "repo": "Recreational-Math/BiOSCharts", "goal": "Ship BiOS to the App Store, with a marketing page" },
-    { "repo": "Recreational-Math/roadie", "goal": "Roadie Pro — September launch" }
+    {
+      "repo": "Recreational-Math/roadie",
+      "goal": "Roadie Pro — September launch"
+    },
+    {
+      "repo": "Recreational-Math/BiOSCharts",
+      "goal": "Ship BiOS to the App Store, with a marketing page"
+    }
   ]
 }

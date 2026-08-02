@@ -44,9 +44,9 @@ jobs:
             "Recreational-Math/roadie|Music curation — a tote bag full of albums|Apps"
             "Recreational-Math/AnyTwo|Any-two-cards poker widget|Apps"
             "Recreational-Math/BiOS|Biorhythms|Apps"
-            "Recreational-Math/BiOSCharts|Biorhythm charts|Apps"
-            "telemetry/recently|What have you enjoyed recently|Web"
-            "telemetry/newRecently|Recently — next version|Web"
+            "Recreational-Math/BiOSCharts|BiOS — three waves since day one, iOS|Apps"
+            "telemetry/recently|Recently — web app and recently.co|Web"
+            "telemetry/newRecently|Recently — anti-selfie social network, iOS|Apps"
             "telemetry/Terrence|Personal portfolio — terrygillespie.com|Web"
             "telemetry/smallVictories|Photography portfolio — smallvictories.com.au|Web"
             "telemetry/sloooow-site|Sloooow — slow down and focus|Web"
@@ -400,7 +400,18 @@ jobs:
             echo "<div class=\"category\">" >> index.html
             echo "<div class=\"category-label\">$CAT</div>" >> index.html
 
-            echo "$PROJECT_DATA" | while IFS='|' read -r OWNER REPO DESC CATEGORY STATUS DAYS LASTMSG COMMITS; do
+            # Leaderboard order: most recently touched first, then most commits
+            # today as the tiebreak. Unknown ("?") sinks to the bottom rather
+            # than sorting as zero and squatting at the top.
+            echo "$PROJECT_DATA" \
+              | awk -F'|' 'NF > 1 {
+                  d = ($6 == "?") ? 999999 : $6
+                  c = ($8 == "") ? 0 : $8
+                  printf "%d\t%d\t%s\n", d, c, $0
+                }' \
+              | sort -k1,1n -k2,2nr \
+              | cut -f3- \
+              | while IFS='|' read -r OWNER REPO DESC CATEGORY STATUS DAYS LASTMSG COMMITS; do
               [ -z "$REPO" ] && continue
               [ "$CATEGORY" != "$CAT" ] && continue
 

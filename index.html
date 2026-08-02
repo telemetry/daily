@@ -46,6 +46,14 @@
       font-size: 1.05rem;
     }
     .focus-next { color: var(--muted); font-size: 0.85rem; }
+    .focus-head { font-weight: 600; margin-bottom: 8px; }
+    .focused { list-style: none; margin: 0 0 10px; padding: 0; }
+    .focused li { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: 0.85rem; }
+    .fr-name { flex: 0 0 34%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fr-bar { flex: 1 1 auto; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .fr-bar i { display: block; height: 100%; background: var(--active); }
+    .fr-num { flex: 0 0 auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .fr-empty { color: var(--muted); }
     .category { margin-bottom: 40px; }
     .category-label {
       font-size: 0.75rem;
@@ -162,9 +170,11 @@
 <body>
 <h1>Daily</h1>
 <p class="subtitle">Project dashboard for Terry Gillespie</p>
-<p class="streak">Current streak: <strong>2 day(s)</strong> &mdash; 7/26 repos active &mdash; 2026-08-02</p>
+<p class="streak">Current streak: <strong>2 day(s)</strong> &mdash; 7/25 repos active &mdash; 2026-08-02</p>
 <div class="focus">
-  🎯 <strong>Now: roadie</strong> &mdash; Roadie Pro — September launch &mdash; worked on today ✅
+  <div class="focus-head">Where the last 7 days went &mdash; 40 commits</div>
+  <ul class="focused"><li><span class="fr-name">claude-sync</span><span class="fr-bar"><i style="width:100%"></i></span><span class="fr-num">9 &middot; 22%</span></li><li><span class="fr-name">smallVictories</span><span class="fr-bar"><i style="width:100%"></i></span><span class="fr-num">9 &middot; 22%</span></li><li><span class="fr-name">BiOSCharts</span><span class="fr-bar"><i style="width:66%"></i></span><span class="fr-num">6 &middot; 15%</span></li><li><span class="fr-name">roadie</span><span class="fr-bar"><i style="width:66%"></i></span><span class="fr-num">6 &middot; 15%</span></li><li><span class="fr-name">newRecently</span><span class="fr-bar"><i style="width:44%"></i></span><span class="fr-num">4 &middot; 10%</span></li></ul>
+  <div class="focus-next">Next up: roadie &mdash; Roadie Pro — September launch &mdash; worked on today ✅</div>
   <ol id="queue"><li class="qitem" draggable="true" data-repo="Recreational-Math/roadie"><span class="grip">⠿</span><span class="qname">roadie</span><span class="qgoal">Roadie Pro — September launch</span><span class="qx" title="Remove from queue">×</span></li><li class="qitem" draggable="true" data-repo="Recreational-Math/BiOSCharts"><span class="grip">⠿</span><span class="qname">BiOSCharts</span><span class="qgoal">Ship BiOS to the App Store, with a marketing page</span><span class="qx" title="Remove from queue">×</span></li></ol>
   <a id="saveorder" class="focus-next" hidden href="#">Save new order →</a>
 </div>
@@ -233,14 +243,6 @@
   <span class="last-commit">UX and UI polish: loading states, validation, hover, 8pt grid</span>
   <span class="target" title="Make addend the focus" onclick="event.preventDefault();event.stopPropagation();window.open('https://github.com/telemetry/daily/issues/new?title=focus%3A+telemetry%2Faddend&amp;body=Submit%20to%20put%20this%20repo%20at%20the%20top%20of%20the%20focus%20queue.%20Add%20a%20line%20%27goal%3A%20your%20goal%27%20to%20set%20its%20goal.','_blank')">🎯</span>
   <span class="project-meta">156d ago</span>
-</a>
-<a class="project" href="https://github.com/Recreational-Math/BiOS" target="_blank" rel="noopener">
-  <span class="project-status status-stale"></span>
-  <span class="project-name">BiOS</span><span class="project-owner">RM</span>
-  <span class="project-desc">Biorhythms</span>
-  <span class="last-commit">Shift from Gitlab</span>
-  <span class="target" title="Make BiOS the focus" onclick="event.preventDefault();event.stopPropagation();window.open('https://github.com/telemetry/daily/issues/new?title=focus%3A+Recreational-Math%2FBiOS&amp;body=Submit%20to%20put%20this%20repo%20at%20the%20top%20of%20the%20focus%20queue.%20Add%20a%20line%20%27goal%3A%20your%20goal%27%20to%20set%20its%20goal.','_blank')">🎯</span>
-  <span class="project-meta">1264d ago</span>
 </a>
 </div>
 <div class="category">
@@ -386,7 +388,7 @@
   <span class="project-status status-active"></span>
   <span class="project-name">daily</span>
   <span class="project-desc">This repo — daily activity tracker</span>
-  <span class="last-commit">Sort each category by most recent, and file newRecently under Apps</span>
+  <span class="last-commit">Focus panel shows what was worked on, not what was declared</span>
   <span class="target" title="Make daily the focus" onclick="event.preventDefault();event.stopPropagation();window.open('https://github.com/telemetry/daily/issues/new?title=focus%3A+telemetry%2Fdaily&amp;body=Submit%20to%20put%20this%20repo%20at%20the%20top%20of%20the%20focus%20queue.%20Add%20a%20line%20%27goal%3A%20your%20goal%27%20to%20set%20its%20goal.','_blank')">🎯</span>
   <span class="project-meta">today</span>
 </a>

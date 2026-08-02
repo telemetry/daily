@@ -31,6 +31,7 @@ jobs:
           TODAY=$(date -u +%Y-%m-%d)
           YEAR=$(date -u +%Y)
           MONTH=$(date -u +%m)
+          WEEK_AGO=$(date -u -d '7 days ago' +%Y-%m-%d)
 
           mkdir -p "logs/$YEAR"
           LOG="logs/$YEAR/$MONTH.md"
@@ -43,7 +44,6 @@ jobs:
             "telemetry/GlyphsTemplateManager|Glyphs.app template plugin|Apps"
             "Recreational-Math/roadie|Music curation — a tote bag full of albums|Apps"
             "Recreational-Math/AnyTwo|Any-two-cards poker widget|Apps"
-            "Recreational-Math/BiOS|Biorhythms|Apps"
             "Recreational-Math/BiOSCharts|BiOS — three waves since day one, iOS|Apps"
             "telemetry/recently|Recently — web app and recently.co|Web"
             "telemetry/newRecently|Recently — anti-selfie social network, iOS|Apps"
@@ -82,6 +82,7 @@ jobs:
           FAILED=0
           TOTAL=${#PROJECTS[@]}
           PROJECT_DATA=""
+          WEEK_DATA=""
 
           for PROJECT in "${PROJECTS[@]}"; do
             IFS='|' read -r FULL DESC CATEGORY <<< "$PROJECT"
@@ -89,6 +90,9 @@ jobs:
             REPO="${FULL##*/}"
 
             COMMITS=$(gh api "repos/$FULL/commits?since=${TODAY}T00:00:00Z&per_page=100" \
+              --jq 'length' 2>/dev/null || echo "0")
+
+            WEEK_COMMITS=$(gh api "repos/$FULL/commits?since=${WEEK_AGO}T00:00:00Z&per_page=100" \
               --jq 'length' 2>/dev/null || echo "0")
 
             LAST=$(gh api "repos/$FULL/commits?per_page=1" \
@@ -132,6 +136,10 @@ jobs:
             DESC_ESC=$(echo "$DESC" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g')
 
             PROJECT_DATA+="${OWNER}|${REPO}|${DESC_ESC}|${CATEGORY}|${STATUS}|${DAYS_AGO}|${LAST_MSG_ESC}|${COMMITS}"$'\n'
+
+            if [ "$FULL" != "telemetry/daily" ] && [ "$WEEK_COMMITS" -gt 0 ] 2>/dev/null; then
+              WEEK_DATA+="${WEEK_COMMITS}|${REPO}|${CATEGORY}"$'\n'
+            fi
 
             if [ "$FULL" = "$FOCUS_REPO" ]; then
               FOCUS_DAYS="$DAYS_AGO"
@@ -253,6 +261,14 @@ jobs:
                 font-size: 1.05rem;
               }
               .focus-next { color: var(--muted); font-size: 0.85rem; }
+              .focus-head { font-weight: 600; margin-bottom: 8px; }
+              .focused { list-style: none; margin: 0 0 10px; padding: 0; }
+              .focused li { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: 0.85rem; }
+              .fr-name { flex: 0 0 34%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+              .fr-bar { flex: 1 1 auto; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+              .fr-bar i { display: block; height: 100%; background: var(--active); }
+              .fr-num { flex: 0 0 auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+              .fr-empty { color: var(--muted); }
               .category { margin-bottom: 40px; }
               .category-label {
                 font-size: 0.75rem;
@@ -380,13 +396,37 @@ jobs:
             QUEUE_HTML+="<li class=\"qitem\" draggable=\"true\" data-repo=\"${QREPO}\"><span class=\"grip\">⠿</span><span class=\"qname\">${QREPO##*/}</span><span class=\"qgoal\">${QGOAL_ESC}</span><span class=\"qx\" title=\"Remove from queue\">×</span></li>"
           done < <(jq -r '.queue[] | .repo + "|" + .goal' focus.json)
 
+          # What actually got worked on this week, straight from commit counts —
+          # no self-reporting, no queue. Top five repos, bar-scaled to the
+          # busiest, so the shape of the week is readable at a glance.
+          FOCUSED_HTML=""
+          WEEK_TOTAL=0
+          if [ -n "$WEEK_DATA" ]; then
+            WEEK_TOTAL=$(echo "$WEEK_DATA" | awk -F'|' 'NF>1 {t+=$1} END {print t+0}')
+            TOP_N=$(echo "$WEEK_DATA" | awk -F'|' 'NF>1' | sort -t'|' -k1,1nr | head -5)
+            MAXC=$(echo "$TOP_N" | head -1 | cut -d'|' -f1)
+            [ -z "$MAXC" ] && MAXC=1
+            [ "$MAXC" -eq 0 ] 2>/dev/null && MAXC=1
+            while IFS='|' read -r WC WREPO WCAT; do
+              [ -z "$WREPO" ] && continue
+              PCT=$(( WC * 100 / MAXC ))
+              SHARE=$(( WC * 100 / (WEEK_TOTAL > 0 ? WEEK_TOTAL : 1) ))
+              FOCUSED_HTML+="<li><span class=\"fr-name\">${WREPO}</span><span class=\"fr-bar\"><i style=\"width:${PCT}%\"></i></span><span class=\"fr-num\">${WC} &middot; ${SHARE}%</span></li>"
+            done <<< "$TOP_N"
+          fi
+          if [ -z "$FOCUSED_HTML" ]; then
+            FOCUSED_HTML="<li class=\"fr-empty\">nothing committed in the last 7 days</li>"
+          fi
+
           # Add dynamic content
           cat >> index.html << EOF
           <h1>Daily</h1>
           <p class="subtitle">Project dashboard for Terry Gillespie</p>
           <p class="streak">Current streak: <strong>${NEW_STREAK} day(s)</strong> &mdash; ${ACTIVE}/${TOTAL} repos active &mdash; ${TODAY}</p>
           <div class="focus">
-            🎯 <strong>Now: ${FOCUS_REPO##*/}</strong> &mdash; ${FOCUS_GOAL} &mdash; ${FOCUS_STATE}
+            <div class="focus-head">Where the last 7 days went &mdash; ${WEEK_TOTAL} commits</div>
+            <ul class="focused">${FOCUSED_HTML}</ul>
+            <div class="focus-next">Next up: ${FOCUS_REPO##*/} &mdash; ${FOCUS_GOAL} &mdash; ${FOCUS_STATE}</div>
             <ol id="queue">${QUEUE_HTML}</ol>
             <a id="saveorder" class="focus-next" hidden href="#">Save new order →</a>
           </div>

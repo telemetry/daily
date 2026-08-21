@@ -190,7 +190,126 @@ you're not reinventing something; this is a genuine gap.
 
 ---
 
-## 4. Hardware for the display itself
+## 4. Driving the panels you already have
+
+*(Added 2026-08-21 — you have TVs and aluminium Cinema Displays on hand, so buying a
+frame is off the table. This section replaces the generic hardware table below.)*
+
+Good news: the aluminium Cinema Displays are genuinely excellent frame material, better
+than most commercial frames — for reasons that aren't obvious.
+
+### Why the aluminium ACDs beat a bought frame
+
+- **Matte antiglare hardcoat.** The single highest-impact hardware detail for a frame,
+  and you already have it. A glossy panel on a wall is a mirror with pictures in it.
+- **16:10 aspect ratio.** 1.60 is much closer to a 3:2 camera frame (1.50) than 16:9
+  (1.78) is. Noticeably less letterboxing or cropping on every photo. Your TVs are the
+  *worse* shape for this job.
+- **Thin aluminium bezel** reads as deliberate on a wall rather than as a spare monitor.
+- **Portrait rotation** is available once VESA-mounted — a 23" or 30" turned vertical is
+  a superb poster board, and that's the orientation posters actually want.
+- **Aged CCFL backlight is a non-issue here.** These panels are 16–22 years old, so the
+  backlights have dimmed and warmed. That disqualifies them for photo editing and is
+  nearly irrelevant — arguably flattering — for a frame in a living room.
+
+### Which of your panels to use, best first
+
+| Panel | Native | Connector | Verdict |
+|---|---|---|---|
+| **23" ACD** (A1082) | 1920×1200 | Single-link DVI | ⭐ **The sweet spot.** Plain passive HDMI→DVI cable off a Pi hits native res. 90 W max |
+| **20" ACD** (A1081) | 1680×1050 | Single-link DVI | Same ease, lowest power (65 W max). Ideal for a hallway |
+| **30" ACD** (A1083) | 2560×1600 | **Dual-link** DVI | Best poster board, but see the trap below. 150 W max |
+| 24"/27" LED Cinema | 1920×1200 / 2560×1440 | Mini DisplayPort | **Glossy** — wrong surface for a frame. Use last |
+| TVs | 16:9 | HDMI | Zero-effort via Apple TV, but worst aspect ratio, glossy, and rarely where you want a permanent frame |
+
+### ⚠️ The 30" trap
+
+The 30" ACD **requires dual-link DVI and has no internal scaler**. Feed it single-link —
+which is all an HDMI→DVI adapter can carry — and you don't get a scaled image, you get
+**1280×800**, exactly half native. On a 30" panel that's coarse enough to see from the
+sofa.
+
+There is no Raspberry Pi fix: the Pi outputs micro-HDMI, and its USB-C port is power-only
+with no DisplayPort alt mode, so the active dual-link converters that solve this
+(CableCreation, Sunix, Apple's old MB571Z/A) have nothing to plug into. To run the 30" at
+native you need a host with **DisplayPort or USB-C output** — a mini PC, NUC, or Mac mini
+— plus a ~$100 active dual-link adapter.
+
+So: **don't start with the 30".** Prove the whole system on a 23" for the price of a $6
+cable, then decide whether the big one is worth a host upgrade plus an adapter.
+
+### The running cost — plan around this
+
+This is the thing that decides whether the project is sensible. Continuous 24/7 operation:
+
+| Panel | Typical draw | Per year | At $0.18/kWh |
+|---|---|---|---|
+| 23" ACD | ~65 W | ~570 kWh | **~$100/yr** |
+| 30" ACD | ~110 W | ~960 kWh | **~$175/yr** |
+
+Each display costs more per year in electricity than an Aura frame costs once. Blanking
+the screen when nobody's looking isn't a nicety, it's the whole economics. Three ways,
+combine freely:
+
+1. **PIR motion sensor** on the Pi's GPIO → wake on approach, `DPMS off` after N minutes.
+   Best experience by far: the frame is always on when anyone is in the room.
+2. **Schedule** — `DPMS off` overnight via cron. Trivial, gets most of the saving.
+3. **[`acdcontrol`](https://acdcontrol.sourceforge.net/)** — Linux utility that sets
+   aluminium ACD backlight brightness over USB HID (range 0–255, supports `+`/`-`
+   deltas). Lets you dim rather than blank in the evening, which looks far better than a
+   hard cut. Note it needs root for `/dev/usb/hiddev*` unless you add a udev rule.
+
+### Other gotchas on this vintage
+
+- **The octopus cable** (DVI + USB + FireWire + power to an external brick) is captive
+  and non-replaceable. Check yours isn't damaged before planning around a panel.
+- **The power brick is the common failure point**, and the 30"'s 150 W unit is scarce and
+  expensive. Don't build your only frame around a panel whose brick you can't replace.
+- **VESA mounting needs Apple's M9649G/A adapter kit** (fits A1081/A1082/A1083, complies
+  with VESA MIS-D 100). Discontinued but cheap and plentiful used. Without it you're stuck
+  with the desk stand — and you need it for portrait rotation. **Buy this first**, it's
+  the only part that gates the wall-mounted result.
+- **The USB hub in the display is useful** — it's how `acdcontrol` talks to the panel, and
+  it can host the PIR sensor or a USB drive.
+
+### Pi video config, current-era
+
+Most guides you'll find are for the legacy stack. On Bookworm / Pi 5 the old
+`hdmi_group` / `hdmi_mode` / `hdmi_cvt` keys in `config.txt` are **ignored** — that's the
+number one reason "my Pi won't do 1920×1200" threads exist. Set the mode on the kernel
+command line instead:
+
+```
+video=HDMI-A-1:1920x1200M@60
+```
+
+or at session start with `wlr-randr` (Wayland) / `xrandr` (X11). 1920×1200 @ 60 Hz needs a
+154 MHz pixel clock against single-link DVI's 165 MHz ceiling, so it fits comfortably —
+use reduced blanking if the panel is fussy. `hdmi_drive=1` (DVI mode, no audio) only
+applies on the legacy stack.
+
+### Suggested topology
+
+- **One used mini PC** = Immich server *and* drives your largest display. If you have an
+  old **Mac mini** (2010–2012 era), it's ideal: native HDMI *and* Mini DisplayPort, so it
+  drives an LED Cinema Display directly, and it runs Immich in Docker. One box, two jobs.
+- **Pi 4/5 + $6 passive HDMI→DVI cable** per 20"/23" ACD, running a kiosk browser.
+- **Apple TV** per TV, running the ImmichFrame tvOS app — zero build.
+
+### Revised first move
+
+Your ten-minute validation test is now even cheaper than the Apple TV route: put a **23"
+ACD on a Pi with a passive HDMI→DVI cable**, point a kiosk browser at a hardcoded
+playlist, and live with it for a week before writing any Swift or standing up any server.
+You'll learn whether the wall placement works and whether you keep feeding it — the two
+things that actually kill these projects — for the cost of a cable.
+
+Order the M9649G/A VESA adapter now regardless of which path you pick; it's the long-lead
+item and everything wall-mounted depends on it.
+
+---
+
+## 5. Generic hardware options (if you were starting from scratch)
 
 | Option | Cost | Verdict |
 |---|---|---|
@@ -205,7 +324,7 @@ That, more than software, is what separates "digital frame" from "monitor on a w
 
 ---
 
-## 5. Recommendation
+## 6. Recommendation
 
 1. **Photos only, and you self-host (or will):** Immich + ImmichFrame on a $40 Frameo
    frame. Nothing to build, official iOS app, native frame client, no subscription.
@@ -219,9 +338,10 @@ That, more than software, is what separates "digital frame" from "monitor on a w
    wall for a week. Most frame projects die from "nice display, nobody feeds it," and
    a week of living with it tells you whether the content pipeline is the real problem.
 
-**Cheapest way to learn the most:** option 2's Apple TV path, tonight. It costs nothing,
-takes ten minutes, and answers the only question that matters — whether a photo display
-on that wall is something you'll keep feeding.
+**Cheapest way to learn the most:** see §4 — a 23" Cinema Display on a Pi with a $6
+passive HDMI→DVI cable, showing a hardcoded playlist for a week. It answers the only
+question that matters — whether a display on that wall is something you'll keep feeding —
+before you commit to a backend.
 
 ---
 
@@ -238,5 +358,10 @@ on that wall is something you'll keep feeding.
 - [balena photo-slideshow](https://github.com/balena-io-experimental/photo-slideshow)
 - [CloudKit JS](https://developer.apple.com/documentation/cloudkitjs)
 - [Fstoppers: InkPoster Tela 28.5 review](https://fstoppers.com/fine-art/inkposter-tela-285-review-future-digital-picture-frames-719866)
+- [Apple Cinema Display 20/23/30 datasheet (PDF)](https://andovercg.com/datasheets/apple-cinema-display-specs.pdf) · [EveryMac: 23" ACD specs](https://everymac.com/monitors/apple/studio_cinema/specs/apple_cinema_display_23.html) · [EveryMac: 30" ACD specs](https://everymac.com/monitors/apple/studio_cinema/specs/apple_cinema_display_30.html)
+- [Apple M9649G/A VESA Mount Adapter](https://www.bhphotovideo.com/c/product/340396-REG/Apple_M9649G_A_Vesa_Mount_Adapter_for.html)
+- [acdcontrol — ACD backlight control for Linux](https://acdcontrol.sourceforge.net/) · [source](https://github.com/warvariuc/acdcontrol)
+- [Connecting a Cinema Display to a Raspberry Pi (MacRumors)](https://forums.macrumors.com/threads/how-to-convert-a-cinema-display-to-be-used-on-a-raspberry-pi.2164284/) · [USB-C to dual-link DVI active adapter](https://www.cablecreation.com/products/usb-c-to-dual-link-dvi-active-adapter-conveter)
+- [Raspberry Pi config.txt video options](https://www.raspberrypi.com/documentation/computers/config_txt.html)
 - [Tom's Guide: best digital photo frames 2026](https://www.tomsguide.com/best-picks/best-digital-photo-frames)
 - [Using an even cheaper Android thing as a digital photo frame](https://lucascosti.com/blog/2026/02/using-an-even-cheaper-android-thing-as-a-digital-photo-frame/)

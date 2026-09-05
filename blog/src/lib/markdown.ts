@@ -9,6 +9,7 @@ import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import { toString } from "hast-util-to-string";
 import type { Root, Element, ElementContent } from "hast";
+import { withBasePath } from "./format";
 
 export type Heading = { depth: number; id: string; text: string };
 
@@ -58,15 +59,22 @@ function rehypeFigures() {
   };
 }
 
-/** External links open in a new tab, safely. */
-function rehypeExternalLinks() {
+/** External links open in a new tab; root-relative links and images get BASE_PATH. */
+function rehypeLinks() {
   return (tree: Root) => {
     visit(tree, "element", (node: Element) => {
-      if (node.tagName !== "a") return;
-      const href = node.properties?.href;
-      if (typeof href === "string" && /^https?:\/\//.test(href)) {
-        node.properties.target = "_blank";
-        node.properties.rel = ["noopener", "noreferrer"];
+      if (node.tagName === "a") {
+        const href = node.properties?.href;
+        if (typeof href !== "string") return;
+        if (/^https?:\/\//.test(href)) {
+          node.properties.target = "_blank";
+          node.properties.rel = ["noopener", "noreferrer"];
+        } else if (href.startsWith("/")) {
+          node.properties.href = withBasePath(href);
+        }
+      } else if (node.tagName === "img" || node.tagName === "video" || node.tagName === "source") {
+        const src = node.properties?.src;
+        if (typeof src === "string" && src.startsWith("/")) node.properties.src = withBasePath(src);
       }
     });
   };
@@ -97,7 +105,7 @@ export async function renderMarkdown(markdown: string) {
       properties: { className: ["heading-anchor"] },
     })
     .use(rehypeFigures)
-    .use(rehypeExternalLinks)
+    .use(rehypeLinks)
     .use(rehypePrettyCode, {
       theme: { light: "vitesse-light", dark: "vitesse-dark" },
       keepBackground: false,

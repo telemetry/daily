@@ -3,7 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Post } from "@/lib/content";
-import { formatDate, isoDate, slugify } from "@/lib/format";
+import { formatDate, isoDate, slugify, withBasePath } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export function PostMeta({ post, className }: { post: Post; className?: string }) {
@@ -80,7 +80,7 @@ export function PostCard({ post, horizontal = false }: { post: Post; horizontal?
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={post.cover}
+            src={withBasePath(post.cover)}
             alt=""
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             loading="lazy"

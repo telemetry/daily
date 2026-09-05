@@ -25,9 +25,19 @@ export function slugify(input: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Deployed origin. SITE_URL (set by the Pages workflow) overrides site.config.ts. */
+export function siteOrigin() {
+  return (process.env.NEXT_PUBLIC_SITE_URL || siteConfig.url).replace(/\/$/, "");
+}
+
+/** Prefix a root-relative path with BASE_PATH (for raw <img src> / <a href>, which Next does not rewrite). */
+export function withBasePath(path: string) {
+  const prefix = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  if (!prefix || !path.startsWith("/") || path.startsWith("//") || path.startsWith(prefix + "/")) return path;
+  return `${prefix}${path}`;
+}
+
 /** Absolute URL for a site path, honouring BASE_PATH. */
 export function absoluteUrl(path: string) {
-  const base = siteConfig.url.replace(/\/$/, "");
-  const prefix = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-  return `${base}${prefix}${path.startsWith("/") ? path : `/${path}`}`;
+  return `${siteOrigin()}${withBasePath(path.startsWith("/") ? path : `/${path}`)}`;
 }

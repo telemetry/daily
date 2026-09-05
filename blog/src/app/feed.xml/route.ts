@@ -1,5 +1,5 @@
 import { getAllPosts } from "@/lib/content";
-import { absoluteUrl } from "@/lib/format";
+import { absoluteUrl, siteOrigin } from "@/lib/format";
 import { siteConfig } from "../../../site.config";
 
 export const dynamic = "force-static";
@@ -7,9 +7,9 @@ export const dynamic = "force-static";
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-/** Make relative src/href attributes absolute so images work in readers. */
+/** Make root-relative src/href absolute so images work in readers (HTML already carries BASE_PATH). */
 const absolutise = (html: string) =>
-  html.replace(/(src|href)="\/(?!\/)([^"]*)"/g, (_m, attr, rest) => `${attr}="${absoluteUrl("/" + rest)}"`);
+  html.replace(/(src|href)="\/(?!\/)([^"]*)"/g, (_m, attr, rest) => `${attr}="${siteOrigin()}/${rest}"`);
 
 export async function GET() {
   const posts = await getAllPosts();

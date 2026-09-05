@@ -101,14 +101,36 @@ shadcn/ui components live in `src/components/ui`. `components.json` is configure
 
 ## Deploying
 
+### GitHub Pages (this repo)
+
+`.github/workflows/pages.yml` publishes one Pages site for the repository:
+
+| Path     | Content                                             |
+| -------- | --------------------------------------------------- |
+| `/`      | the Daily dashboard (`index.html`, written by `daily.yml`) |
+| `/blog/` | this blog, built from `blog/`                        |
+
+It runs on every push to `main` that touches `index.html` or `blog/`, and can be run by hand from
+the Actions tab. The blog is built with `BASE_PATH` and `SITE_URL` taken from the Pages
+configuration, so every link, image, feed entry and sitemap URL is correct whether the site lives
+at `https://<user>.github.io/<repo>/blog/` or behind a custom domain.
+
+One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions.** The
+workflow also tries to enable Pages itself on first run. If the dashboard was previously served
+straight from the `main` branch, switching the source keeps it at `/` and adds the blog at `/blog/`.
+
+For a custom domain, add it under Settings → Pages; `SITE_URL` follows automatically.
+
+### Anywhere else
+
 `npm run build` writes a self-contained site to `out/`. Upload that folder to any static host:
 
-- **Netlify / Cloudflare Pages / Vercel** — build command `npm run build`, publish directory `out`, base directory `blog`.
-- **GitHub Pages (project site)** — build with `BASE_PATH=/<repo> npm run build` and publish `out/`.
+- **Netlify / Cloudflare Pages / Vercel** — base directory `blog`, build command `npm run build`, publish directory `out`.
+- **Sub-directory on another host** — `BASE_PATH=/blog npm run build`.
 - **Your own server** — `rsync -av out/ server:/var/www/site/`.
 
-Set `url` in `site.config.ts` to the deployed origin so canonical URLs, the RSS feed
-(`/feed.xml`) and `sitemap.xml` are correct.
+Set `url` in `site.config.ts` to the deployed origin (or pass `SITE_URL`) so canonical URLs, the RSS
+feed (`/feed.xml`) and `sitemap.xml` are correct.
 
-The `blog-build` workflow in `.github/workflows` builds on every push touching `blog/` and
-uploads `out/` as an artifact, so a broken build is caught before deploy.
+The `blog-build` workflow lints, typechecks and builds on every push touching `blog/`, so a broken
+build is caught before deploy.

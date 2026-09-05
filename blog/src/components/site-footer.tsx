@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "../../site.config";
+import { withBasePath } from "@/lib/format";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -23,6 +24,9 @@ export function SiteFooter() {
                   <a href={l.href} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
                     {l.label}
                   </a>
+                ) : /\.[a-z0-9]+$/i.test(l.href) ? (
+                  // Files (feed.xml etc.) are not routes: plain anchor, no prefetch.
+                  <a href={withBasePath(l.href)} className="hover:text-foreground">{l.label}</a>
                 ) : (
                   <Link href={l.href} className="hover:text-foreground">{l.label}</Link>
                 )}

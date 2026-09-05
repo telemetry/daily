@@ -1,0 +1,73 @@
+# Publishes ONE GitHub Pages site for this repo:
+#   /        → the Daily dashboard (index.html, written by daily.yml)
+#   /blog/   → the static blog built from blog/
+#
+# One-time setup: Settings → Pages → Source: "GitHub Actions".
+# (configure-pages below also attempts to enable it automatically.)
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "blog/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: blog/package-lock.json
+
+      - name: Build blog
+        working-directory: blog
+        env:
+          # e.g. https://telemetry.github.io + /daily/blog — or your custom domain + /blog
+          SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}/blog
+        run: |
+          npm ci
+          npm run build
+
+      - name: Assemble site
+        run: |
+          mkdir -p site/blog
+          cp index.html site/
+          cp -r blog/out/. site/blog/
+          touch site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

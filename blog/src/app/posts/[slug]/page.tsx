@@ -7,7 +7,7 @@ import { Prose } from "@/components/prose";
 import { Toc } from "@/components/toc";
 import { PostMeta, TagList } from "@/components/post-list";
 import { getAdjacentPosts, getAllPosts, getPost } from "@/lib/content";
-import { formatDate, isoDate } from "@/lib/format";
+import { absoluteUrl, formatDate, isoDate, withBasePath } from "@/lib/format";
 import { siteConfig } from "../../../../site.config";
 
 export const dynamicParams = false;
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps<"/posts/[slug]">): 
       modifiedTime: post.updated,
       authors: [siteConfig.author.name],
       tags: post.tags,
-      images: post.cover ? [{ url: post.cover, alt: post.coverAlt }] : undefined,
+      images: post.cover ? [{ url: absoluteUrl(post.cover), alt: post.coverAlt }] : undefined,
     },
   };
 }
@@ -57,7 +57,7 @@ export default async function PostPage({ params }: PageProps<"/posts/[slug]">) {
         <figure className="mt-12">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={post.cover}
+            src={withBasePath(post.cover)}
             alt={post.coverAlt ?? ""}
             className="w-full rounded-md bg-muted"
             fetchPriority="high"

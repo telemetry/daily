@@ -1,0 +1,267 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+/* Self-hosted fonts (no runtime requests, no FOUT from third parties). */
+@import "@fontsource/inclusive-sans/300.css";
+@import "@fontsource/inclusive-sans/400.css";
+@import "@fontsource/inclusive-sans/400-italic.css";
+@import "@fontsource/inclusive-sans/500.css";
+@import "@fontsource/inclusive-sans/600.css";
+@import "@fontsource-variable/instrument-sans/index.css";
+@import "@fontsource-variable/newsreader/opsz.css";
+@import "@fontsource-variable/newsreader/opsz-italic.css";
+@import "@fontsource-variable/fraunces/index.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource-variable/jetbrains-mono/index.css";
+
+/* Palettes. Order matters: later palettes override the `.dark` fallback of Paper. */
+@import "../styles/themes/paper.css";
+@import "../styles/themes/darkroom.css";
+@import "../styles/themes/gallery.css";
+@import "../styles/themes/ink.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-highlight: var(--highlight);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-body);
+  --font-display: var(--font-heading);
+  --font-mono: var(--font-code);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-weight: var(--body-weight);
+    font-feature-settings: "kern", "liga", "calt";
+    text-rendering: optimizeLegibility;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+  ::selection {
+    background: var(--selection);
+  }
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-heading);
+    font-weight: var(--heading-weight);
+    letter-spacing: var(--heading-tracking);
+    line-height: var(--heading-leading);
+    text-wrap: balance;
+  }
+}
+
+/* ----- Article typography ---------------------------------------------- */
+.prose {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-lead: var(--muted-foreground);
+  --tw-prose-links: var(--foreground);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-bullets: var(--border);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--highlight);
+  --tw-prose-captions: var(--muted-foreground);
+  --tw-prose-kbd: var(--foreground);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-pre-bg: var(--muted);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+  --tw-prose-invert-body: var(--foreground);
+  --tw-prose-invert-headings: var(--foreground);
+  --tw-prose-invert-links: var(--foreground);
+  --tw-prose-invert-bold: var(--foreground);
+  --tw-prose-invert-code: var(--foreground);
+  --tw-prose-invert-pre-bg: var(--muted);
+  max-width: var(--measure);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+.prose a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in oklab, var(--foreground) 35%, transparent);
+  transition: text-decoration-color 0.15s ease;
+}
+.prose a:hover {
+  text-decoration-color: var(--highlight);
+}
+.prose h2, .prose h3, .prose h4 {
+  scroll-margin-top: 6rem;
+}
+.prose h2 { margin-top: 2.4em; }
+.prose :where(h2, h3) a.heading-anchor {
+  text-decoration: none;
+  color: inherit;
+}
+.prose :where(h2, h3) a.heading-anchor::after {
+  content: "#";
+  margin-left: 0.4em;
+  color: var(--muted-foreground);
+  opacity: 0;
+  font-weight: 300;
+  transition: opacity 0.15s ease;
+}
+.prose :where(h2, h3):hover a.heading-anchor::after { opacity: 1; }
+.prose blockquote {
+  font-style: normal;
+  font-weight: inherit;
+  border-left-width: 2px;
+}
+.prose blockquote p:first-of-type::before,
+.prose blockquote p:last-of-type::after { content: none; }
+.prose :not(pre) > code {
+  font-weight: 500;
+  font-size: 0.875em;
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  background: var(--muted);
+}
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after { content: none; }
+.prose hr {
+  border: 0;
+  height: 1px;
+  background: var(--border);
+  margin: 3em 0;
+}
+.prose table { font-size: 0.9375rem; }
+.prose kbd {
+  box-shadow: none;
+  border: 1px solid var(--border);
+  background: var(--muted);
+}
+
+/* Figures: images with captions. Use ![alt](src "Caption") in markdown. */
+.prose figure {
+  margin: 2.5em 0;
+}
+/* Break out of the measure to the full article width (the article is a CSS container). */
+.prose figure.wide {
+  width: 100%;
+  max-width: none;
+}
+@supports (width: 100cqw) {
+  .prose figure.wide { width: 100cqw; }
+}
+.prose figure img {
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: var(--muted);
+}
+.prose figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  font-family: var(--font-code);
+  letter-spacing: 0.01em;
+}
+.prose img { margin: 0; }
+
+/* Code blocks (rehype-pretty-code, dual-theme via CSS variables). */
+.prose pre {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--muted);
+  padding: 1rem 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+.prose pre > code {
+  display: grid;
+  padding: 0;
+  background: transparent;
+  counter-reset: line;
+}
+.prose pre [data-line] {
+  padding: 0 1.25rem;
+  border-left: 2px solid transparent;
+}
+.prose pre [data-highlighted-line] {
+  background: color-mix(in oklab, var(--highlight) 12%, transparent);
+  border-left-color: var(--highlight);
+}
+.prose pre [data-highlighted-chars] {
+  background: color-mix(in oklab, var(--highlight) 18%, transparent);
+  border-radius: 3px;
+  padding: 0.1em 0.2em;
+}
+.prose code[data-line-numbers] > [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1.5rem;
+  margin-right: 1.5rem;
+  text-align: right;
+  color: var(--muted-foreground);
+}
+[data-rehype-pretty-code-figure] { margin: 2em 0; }
+[data-rehype-pretty-code-title] {
+  font-family: var(--font-code);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--muted);
+}
+[data-rehype-pretty-code-title] + pre {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+code[data-theme*=" "],
+code[data-theme*=" "] span {
+  color: var(--shiki-light);
+}
+.dark code[data-theme*=" "],
+.dark code[data-theme*=" "] span {
+  color: var(--shiki-dark);
+}
+
+/* Utility: the display type scale used across the site. */
+.wordmark {
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+}

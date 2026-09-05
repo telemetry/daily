@@ -1,0 +1,56 @@
+/* Ink — editorial. Newsreader for reading, Fraunces for display, oxblood accent. */
+[data-theme="ink"] {
+  --font-body: "Newsreader Variable", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-heading: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
+  --font-code: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --heading-weight: 500;
+  --heading-tracking: -0.015em;
+  --heading-leading: 1.05;
+  --body-weight: 400;
+  --measure: 60ch;
+  --radius: 0.25rem;
+
+  --background: #f4efe6;
+  --foreground: #1c1917;
+  --card: #faf6ee;
+  --card-foreground: #1c1917;
+  --popover: #faf6ee;
+  --popover-foreground: #1c1917;
+  --primary: #7a1f1f;
+  --primary-foreground: #f4efe6;
+  --secondary: #eae3d6;
+  --secondary-foreground: #1c1917;
+  --muted: #ece6da;
+  --muted-foreground: #6f6760;
+  --accent: #eae3d6;
+  --accent-foreground: #1c1917;
+  --highlight: #7a1f1f;
+  --destructive: #9f2b2b;
+  --border: #ddd4c4;
+  --input: #ddd4c4;
+  --ring: #7a1f1f;
+  --selection: #efd3c7;
+}
+
+.dark[data-theme="ink"] {
+  --background: #15130f;
+  --foreground: #e9e2d6;
+  --card: #1c1913;
+  --card-foreground: #e9e2d6;
+  --popover: #1c1913;
+  --popover-foreground: #e9e2d6;
+  --primary: #d98c7a;
+  --primary-foreground: #15130f;
+  --secondary: #24201a;
+  --secondary-foreground: #e9e2d6;
+  --muted: #211d17;
+  --muted-foreground: #98908a;
+  --accent: #24201a;
+  --accent-foreground: #e9e2d6;
+  --highlight: #d98c7a;
+  --destructive: #e07a6a;
+  --border: #2f2a22;
+  --input: #2f2a22;
+  --ring: #d98c7a;
+  --selection: #4a2f27;
+}

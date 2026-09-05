@@ -1,0 +1,56 @@
+/* Darkroom — dark-first, made for photographs. Amber safelight accent. */
+[data-theme="darkroom"] {
+  --font-body: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-code: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --heading-weight: 600;
+  --heading-tracking: -0.035em;
+  --heading-leading: 1;
+  --body-weight: 400;
+  --measure: 64ch;
+  --radius: 0.125rem;
+
+  --background: #ece9e3;
+  --foreground: #141312;
+  --card: #f4f2ee;
+  --card-foreground: #141312;
+  --popover: #f4f2ee;
+  --popover-foreground: #141312;
+  --primary: #141312;
+  --primary-foreground: #ece9e3;
+  --secondary: #e0dcd4;
+  --secondary-foreground: #141312;
+  --muted: #e3dfd8;
+  --muted-foreground: #6e6a63;
+  --accent: #e0dcd4;
+  --accent-foreground: #141312;
+  --highlight: #d9480f;
+  --destructive: #b3261e;
+  --border: #d3cec5;
+  --input: #d3cec5;
+  --ring: #d9480f;
+  --selection: #f6c7a8;
+}
+
+.dark[data-theme="darkroom"] {
+  --background: #0c0c0d;
+  --foreground: #d9d4cc;
+  --card: #131314;
+  --card-foreground: #d9d4cc;
+  --popover: #161617;
+  --popover-foreground: #d9d4cc;
+  --primary: #f0ebe3;
+  --primary-foreground: #0c0c0d;
+  --secondary: #1c1c1e;
+  --secondary-foreground: #d9d4cc;
+  --muted: #191919;
+  --muted-foreground: #8a857d;
+  --accent: #1f1f21;
+  --accent-foreground: #f0ebe3;
+  --highlight: #ff6b2c;
+  --destructive: #e5533f;
+  --border: #262628;
+  --input: #262628;
+  --ring: #ff6b2c;
+  --selection: #4a2a17;
+}

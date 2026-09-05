@@ -1,0 +1,58 @@
+/* Paper — the default. Mirrors the Daily dashboard: cream stock, ink type. */
+:root,
+[data-theme="paper"] {
+  --font-body: "Inclusive Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-heading: "Inclusive Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-code: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --heading-weight: 300;
+  --heading-tracking: -0.03em;
+  --heading-leading: 1.05;
+  --body-weight: 400;
+  --measure: 66ch;
+  --radius: 0.5rem;
+
+  --background: #f9f6ee;
+  --foreground: #0a131d;
+  --card: #fffdf7;
+  --card-foreground: #0a131d;
+  --popover: #fffdf7;
+  --popover-foreground: #0a131d;
+  --primary: #0a131d;
+  --primary-foreground: #f9f6ee;
+  --secondary: #efeae0;
+  --secondary-foreground: #0a131d;
+  --muted: #f0ece2;
+  --muted-foreground: #6b7684;
+  --accent: #efeae0;
+  --accent-foreground: #0a131d;
+  --highlight: #e6a817;
+  --destructive: #c0392b;
+  --border: #e3ded2;
+  --input: #e3ded2;
+  --ring: #0a131d;
+  --selection: #f3dc9a;
+}
+
+.dark,
+.dark[data-theme="paper"] {
+  --background: #0a131d;
+  --foreground: #e8e4dd;
+  --card: #101b27;
+  --card-foreground: #e8e4dd;
+  --popover: #101b27;
+  --popover-foreground: #e8e4dd;
+  --primary: #e8e4dd;
+  --primary-foreground: #0a131d;
+  --secondary: #172333;
+  --secondary-foreground: #e8e4dd;
+  --muted: #142030;
+  --muted-foreground: #8893a2;
+  --accent: #172333;
+  --accent-foreground: #e8e4dd;
+  --highlight: #e6a817;
+  --destructive: #e05a4c;
+  --border: #2a3545;
+  --input: #2a3545;
+  --ring: #e8e4dd;
+  --selection: #3b4a5e;
+}

@@ -1,0 +1,34 @@
+name: Blog build
+
+on:
+  push:
+    paths: ["blog/**", ".github/workflows/blog-build.yml"]
+  pull_request:
+    paths: ["blog/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: blog
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: blog/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blog-site
+          path: blog/out
+          retention-days: 7

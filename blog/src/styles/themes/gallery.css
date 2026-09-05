@@ -1,0 +1,56 @@
+/* Gallery — white walls, hard edges, a quiet grotesk. No radius anywhere. */
+[data-theme="gallery"] {
+  --font-body: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-code: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --heading-weight: 500;
+  --heading-tracking: -0.02em;
+  --heading-leading: 1.1;
+  --body-weight: 400;
+  --measure: 62ch;
+  --radius: 0rem;
+
+  --background: #ffffff;
+  --foreground: #111111;
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
+  --primary: #111111;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f2f2;
+  --secondary-foreground: #111111;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --accent: #f2f2f2;
+  --accent-foreground: #111111;
+  --highlight: #111111;
+  --destructive: #d32f2f;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #111111;
+  --selection: #dcdcdc;
+}
+
+.dark[data-theme="gallery"] {
+  --background: #121212;
+  --foreground: #f2f2f2;
+  --card: #121212;
+  --card-foreground: #f2f2f2;
+  --popover: #1a1a1a;
+  --popover-foreground: #f2f2f2;
+  --primary: #f2f2f2;
+  --primary-foreground: #121212;
+  --secondary: #1f1f1f;
+  --secondary-foreground: #f2f2f2;
+  --muted: #1c1c1c;
+  --muted-foreground: #9a9a9a;
+  --accent: #222222;
+  --accent-foreground: #f2f2f2;
+  --highlight: #f2f2f2;
+  --destructive: #ef5350;
+  --border: #2a2a2a;
+  --input: #2a2a2a;
+  --ring: #f2f2f2;
+  --selection: #3a3a3a;
+}

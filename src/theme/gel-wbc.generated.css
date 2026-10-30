@@ -1,0 +1,275 @@
+/* GENERATED FILE — do not edit.
+ * Source: @westpac/style-config@1.0.2 (Westpac GEL-next, github.com/WestpacGEL/GEL-next)
+ * Built by scripts/gel-tokens.mjs on 2026-10-30.
+ */
+:root {
+  /* Primitives: colour ramps */
+  --gel-primitive-reserved-success-50: #f2f9f2;
+  --gel-primitive-reserved-success-100: #d9ecd9;
+  --gel-primitive-reserved-success-200: #99cc99;
+  --gel-primitive-reserved-success-300: #47a447;
+  --gel-primitive-reserved-success-400: #249224;
+  --gel-primitive-reserved-success-500: #008000;
+  --gel-primitive-reserved-success-600: #006d00;
+  --gel-primitive-reserved-success-700: #005a00;
+  --gel-primitive-reserved-success-800: #004600;
+  --gel-primitive-reserved-success-900: #003300;
+  --gel-primitive-reserved-success-950: #002000;
+  --gel-primitive-reserved-info-50: #f2f8fc;
+  --gel-primitive-reserved-info-100: #d9eaf6;
+  --gel-primitive-reserved-info-200: #99c7e7;
+  --gel-primitive-reserved-info-300: #459ad4;
+  --gel-primitive-reserved-info-400: #2487cc;
+  --gel-primitive-reserved-info-500: #0074c4;
+  --gel-primitive-reserved-info-600: #0063a7;
+  --gel-primitive-reserved-info-700: #005189;
+  --gel-primitive-reserved-info-800: #00406c;
+  --gel-primitive-reserved-info-900: #002e4e;
+  --gel-primitive-reserved-info-950: #001d31;
+  --gel-primitive-reserved-warning-50: #fcf5f2;
+  --gel-primitive-reserved-warning-100: #f3d8cc;
+  --gel-primitive-reserved-warning-200: #e8b199;
+  --gel-primitive-reserved-warning-300: #d7784f;
+  --gel-primitive-reserved-warning-400: #ce5826;
+  --gel-primitive-reserved-warning-500: #c53b00;
+  --gel-primitive-reserved-warning-600: #a73200;
+  --gel-primitive-reserved-warning-700: #8a2900;
+  --gel-primitive-reserved-warning-800: #6c2000;
+  --gel-primitive-reserved-warning-900: #4f1800;
+  --gel-primitive-reserved-warning-950: #310f00;
+  --gel-primitive-reserved-danger-50: #fcf2f2;
+  --gel-primitive-reserved-danger-100: #f9e6e6;
+  --gel-primitive-reserved-danger-200: #eaa6a6;
+  --gel-primitive-reserved-danger-300: #db6363;
+  --gel-primitive-reserved-danger-400: #d03333;
+  --gel-primitive-reserved-danger-500: #c40000;
+  --gel-primitive-reserved-danger-600: #a70000;
+  --gel-primitive-reserved-danger-700: #890000;
+  --gel-primitive-reserved-danger-800: #6c0000;
+  --gel-primitive-reserved-danger-900: #4e0000;
+  --gel-primitive-reserved-danger-950: #310000;
+  --gel-primitive-reserved-system-50: #fffff2;
+  --gel-primitive-reserved-system-100: #ffffe6;
+  --gel-primitive-reserved-system-200: #ffffbf;
+  --gel-primitive-reserved-system-300: #ffff80;
+  --gel-primitive-reserved-system-400: #ffff40;
+  --gel-primitive-reserved-system-500: #ffff00;
+  --gel-primitive-reserved-system-600: #d9d900;
+  --gel-primitive-reserved-system-700: #b3b300;
+  --gel-primitive-reserved-system-800: #8c8c00;
+  --gel-primitive-reserved-system-900: #666600;
+  --gel-primitive-reserved-system-950: #404000;
+  --gel-primitive-wbc-muted-50: #f9f9fa;
+  --gel-primitive-wbc-muted-100: #f5f5f6;
+  --gel-primitive-wbc-muted-200: #dedee1;
+  --gel-primitive-wbc-muted-300: #b6b6bc;
+  --gel-primitive-wbc-muted-400: #8e8d98;
+  --gel-primitive-wbc-muted-500: #706f7c;
+  --gel-primitive-wbc-muted-600: #5b5b6a;
+  --gel-primitive-wbc-muted-700: #464651;
+  --gel-primitive-wbc-muted-800: #323238;
+  --gel-primitive-wbc-muted-900: #1c1c1f;
+  --gel-primitive-wbc-muted-950: #161619;
+  --gel-primitive-wbc-primary-50: #fff0f0;
+  --gel-primitive-wbc-primary-100: #facccb;
+  --gel-primitive-wbc-primary-200: #f46e69;
+  --gel-primitive-wbc-primary-300: #f1423c;
+  --gel-primitive-wbc-primary-400: #ee221b;
+  --gel-primitive-wbc-primary-500: #da1710;
+  --gel-primitive-wbc-primary-600: #b9140e;
+  --gel-primitive-wbc-primary-700: #99100b;
+  --gel-primitive-wbc-primary-800: #780d09;
+  --gel-primitive-wbc-primary-900: #570906;
+  --gel-primitive-wbc-primary-950: #370604;
+  --gel-primitive-wbc-primary-opacity: #da171080;
+  --gel-primitive-wbc-hero-50: #f1f0fa;
+  --gel-primitive-wbc-hero-100: #e2e1f4;
+  --gel-primitive-wbc-hero-200: #a9a5df;
+  --gel-primitive-wbc-hero-300: #6f69c9;
+  --gel-primitive-wbc-hero-400: #423c97;
+  --gel-primitive-wbc-hero-500: #1f1c4f;
+  --gel-primitive-wbc-hero-600: #18144d;
+  --gel-primitive-wbc-hero-700: #130f48;
+  --gel-primitive-wbc-hero-800: #0d093e;
+  --gel-primitive-wbc-hero-900: #090538;
+  --gel-primitive-wbc-hero-950: #060236;
+  --gel-primitive-wbc-hero-opacity: #3a349399;
+  --gel-primitive-wbc-pop-50: #fff5fd;
+  --gel-primitive-wbc-pop-100: #ffecfb;
+  --gel-primitive-wbc-pop-200: #ffcff6;
+  --gel-primitive-wbc-pop-300: #ff9eed;
+  --gel-primitive-wbc-pop-400: #ff6ee4;
+  --gel-primitive-wbc-pop-500: #ff3ddb;
+  --gel-primitive-wbc-pop-600: #d934ba;
+  --gel-primitive-wbc-pop-700: #b32b99;
+  --gel-primitive-wbc-pop-800: #8c2278;
+  --gel-primitive-wbc-pop-900: #59154d;
+  --gel-primitive-wbc-pop-950: #330c2c;
+  --gel-primitive-wbc-pop-opacity: #ff3ddb73;
+  --gel-primitive-wbc-holler-50: #faf1fd;
+  --gel-primitive-wbc-holler-100: #ebcdf9;
+  --gel-primitive-wbc-holler-200: #ce84f0;
+  --gel-primitive-wbc-holler-300: #bc57eb;
+  --gel-primitive-wbc-holler-400: #ad32e6;
+  --gel-primitive-wbc-holler-500: #991ad6;
+  --gel-primitive-wbc-holler-600: #8717ba;
+  --gel-primitive-wbc-holler-700: #70139b;
+  --gel-primitive-wbc-holler-800: #5c0f7f;
+  --gel-primitive-wbc-holler-900: #450c5f;
+  --gel-primitive-wbc-holler-950: #2e0840;
+  --gel-primitive-wbc-holler-opacity: #991ad680;
+  --gel-primitive-wbc-sing-50: #faf2f2;
+  --gel-primitive-wbc-sing-100: #f5d9d9;
+  --gel-primitive-wbc-sing-200: #efa2a2;
+  --gel-primitive-wbc-sing-300: #e76969;
+  --gel-primitive-wbc-sing-400: #cf2c2c;
+  --gel-primitive-wbc-sing-500: #990000;
+  --gel-primitive-wbc-sing-600: #860000;
+  --gel-primitive-wbc-sing-700: #710000;
+  --gel-primitive-wbc-sing-800: #5d0000;
+  --gel-primitive-wbc-sing-900: #4d0000;
+  --gel-primitive-wbc-sing-950: #410000;
+  --gel-primitive-wbc-sing-opacity: #99000080;
+  --gel-primitive-wbc-dance-50: #fef4eb;
+  --gel-primitive-wbc-dance-100: #fde7d3;
+  --gel-primitive-wbc-dance-200: #fbcba2;
+  --gel-primitive-wbc-dance-300: #f9b071;
+  --gel-primitive-wbc-dance-400: #f79540;
+  --gel-primitive-wbc-dance-500: #f57a0f;
+  --gel-primitive-wbc-dance-600: #ce6409;
+  --gel-primitive-wbc-dance-700: #9d4c07;
+  --gel-primitive-wbc-dance-800: #713705;
+  --gel-primitive-wbc-dance-900: #401f03;
+  --gel-primitive-wbc-dance-950: #2c1502;
+  --gel-primitive-wbc-dance-opacity: #f57a0f73;
+  --gel-primitive-mono-white: #ffffff;
+  --gel-primitive-mono-black: #000000;
+
+  /* Primitives: border radius */
+  --gel-primitive-radius-0px: 0px;
+  --gel-primitive-radius-3px: 3px;
+  --gel-primitive-radius-4px: 4px;
+  --gel-primitive-radius-5px: 5px;
+  --gel-primitive-radius-6px: 6px;
+  --gel-primitive-radius-8px: 8px;
+  --gel-primitive-radius-12px: 12px;
+  --gel-primitive-radius-16px: 16px;
+  --gel-primitive-radius-24px: 24px;
+  --gel-primitive-radius-999px: 999px;
+
+  /* Semantic tokens: Westpac, light-mode */
+  /* background */
+  --gel-background-white: var(--gel-primitive-mono-white); /* If you need a white background use this token */
+  --gel-background-pale: var(--gel-primitive-wbc-muted-100); /* If you need a grey background use this token. Note: this token replaces the current Background colour style. */
+  --gel-background-faint: var(--gel-primitive-wbc-muted-50); /* If you need a light grey background use this token. Note: this token replaces the current Light colour style. Do not use this token as a screen background. */
+  --gel-background-primary: var(--gel-primitive-wbc-primary-500); /* Use for embellishment eg. hero banners etc. Warning. Accessibility is not guaranteed */
+  --gel-background-hero: var(--gel-primitive-wbc-hero-500); /* Use for embellishment eg. hero banners etc. Warning. Accessibility is not guaranteed */
+  /* surface */
+  --gel-surface-muted-vivid: var(--gel-primitive-wbc-muted-950); /* Use for surfaces that need to be the same colour as body text (icons, arrows etc). */
+  --gel-surface-muted: var(--gel-primitive-wbc-muted-500); /* Replaces the current Muted colour style. */
+  --gel-surface-muted-strong: var(--gel-primitive-wbc-muted-400); /* Reserved do not use. */
+  --gel-surface-muted-mild: var(--gel-primitive-wbc-muted-300); /* Reserved do not use. */
+  --gel-surface-muted-soft: var(--gel-primitive-wbc-muted-200); /* Reserved do not use. */
+  --gel-surface-muted-pale: var(--gel-primitive-wbc-muted-100); /* Replaces the current Background colour style. Tip: In light mode this colour is the same as background-pale however they behave differently in dark mode. */
+  --gel-surface-muted-faint: var(--gel-primitive-wbc-muted-50); /* Replaces the current Light colour style. Tip: In light mode this colour is the same as background-faint however they each behave differently in dark mode. */
+  --gel-surface-primary: var(--gel-primitive-wbc-primary-500); /* Replaces the current Primary colour style. */
+  --gel-surface-primary-faint: var(--gel-primitive-wbc-primary-50); /* Reserved do not use. */
+  --gel-surface-hero: var(--gel-primitive-wbc-hero-500); /* Replaces the current Hero colour style. */
+  --gel-surface-hero-faint: var(--gel-primitive-wbc-hero-50); /* Reserved do not use. */
+  --gel-surface-pop: var(--gel-primitive-wbc-pop-500); /* Replaces the current Pop colour style. Use for embellishment only as it may not be accessible in all brands. Always use sparingly and in accordance with the brand guidelines. */
+  --gel-surface-pop-faint: var(--gel-primitive-wbc-pop-50); /* Replaces the current Pop Light colour style. Use for embellishment only as it may not be accessible in all brands. Always use sparingly and in accordance with the brand guidelines. */
+  --gel-surface-holler: var(--gel-primitive-wbc-holler-500); /* Use with caution: GEL cannot endorse the use of this colour token until it&#39;s approved and documented as part of the Master Brand. This applies to all our brands. */
+  --gel-surface-holler-faint: var(--gel-primitive-wbc-holler-50); /* Use with caution: GEL cannot endorse the use of this colour token until it&#39;s approved and documented as part of the Master Brand. This applies to all our brands. */
+  --gel-surface-success: var(--gel-primitive-reserved-success-500); /* Only use for success alert components, do not use for anything else. */
+  --gel-surface-success-faint: var(--gel-primitive-reserved-success-50); /* Only use for success alert components, do not use for anything else. Note: this surface should always be used with border-success-mild as shown here. */
+  --gel-surface-info: var(--gel-primitive-reserved-info-500); /* Only use for info alert components, do not use for anything else. */
+  --gel-surface-info-faint: var(--gel-primitive-reserved-info-50); /* Only use for info alert components, do not use for anything else. Note: this surface should always be used with border-info-mild as shown here. */
+  --gel-surface-warning: var(--gel-primitive-reserved-warning-500); /* Only use for warning alert components, do not use for anything else. */
+  --gel-surface-warning-faint: var(--gel-primitive-reserved-warning-50); /* Only use for warning alert components, do not use for anything else. Note: this surface should always be used with border-warning-mild as shown here. */
+  --gel-surface-danger: var(--gel-primitive-reserved-danger-500); /* Only use for danger alert components, do not use for anything else. */
+  --gel-surface-danger-faint: var(--gel-primitive-reserved-danger-50); /* Only use for danger alert components, do not use for anything else. Note: this surface should always be used with border-danger-mild as shown here. */
+  --gel-surface-system-error: var(--gel-primitive-reserved-system-500); /* Only use for system alert components, do not use for anything else. */
+  --gel-surface-system-error-dark: var(--gel-primitive-reserved-system-950); /* Only use for system alert components, do not use for anything else. */
+  --gel-surface-mono: var(--gel-primitive-mono-white); /* White in light mode and black in dark mode. Use with caution, black often creates too much contrast which defeats the object of reducing glare. Tip: Use background-white. This will provide the same results with less contrast in dark mode. */
+  --gel-surface-reversed: var(--gel-primitive-mono-white); /* Always white. Use with caution, in Dark Mode white often creates too much contrast which defeats the object of reducing glare. Tip: Use surface-mono or background-white as these tokens are designed to work in dark mode. */
+  /* text */
+  --gel-text-body: var(--gel-primitive-wbc-muted-950); /* Use for paragraph text and UI elements - labels, buttons, inputs etc */
+  --gel-text-heading: var(--gel-primitive-wbc-hero-500); /* Use for headings only. Note: Using text-heading on anything other than headings may produce unexpected results in multi-brand applications. */
+  --gel-text-muted: var(--gel-primitive-wbc-muted-500); /* Use for text that requires less emphasis like hint text etc. */
+  --gel-text-primary: var(--gel-primitive-wbc-primary-500); /* Use with caution and in accordance with the brand guidelines. Tip: If your text is a link always use the text-link token. */
+  --gel-text-hero: var(--gel-primitive-wbc-hero-500); /* Use for text that requires more emphasis, call outs, quotes etc. */
+  --gel-text-holler: var(--gel-primitive-wbc-holler-500); /* Use for text that requires more emphasis, call outs, quotes etc. Note: GEL cannot endorse the use of this colour token until it&#39;s approved and documented as part of the Master Brand. This applies to all our brands. */
+  --gel-text-link: var(--gel-primitive-wbc-primary-500); /* Use for text links only. Note: In Westpac this colour is exactly the same as text-primary however this may not be the case in other brands. */
+  --gel-text-success: var(--gel-primitive-reserved-success-500); /* Only for success alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-text-info: var(--gel-primitive-reserved-info-500); /* Only for info alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-text-warning: var(--gel-primitive-reserved-warning-500); /* Only for warning alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-text-danger: var(--gel-primitive-reserved-danger-500); /* Only for danger alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-text-system-error: var(--gel-primitive-reserved-system-950); /* Only for system error alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-text-mono: var(--gel-primitive-mono-white); /* Similar to surface-mono, text-mono is white in light mode and black in dark mode. It’s typically used for UI elements like buttons, tabs, panel heading etc. */
+  --gel-text-reversed: var(--gel-primitive-mono-white); /* Similar to surface-reversed, text-reversed is always white. Use with caution, in dark mode white creates too much contrast which defeats the object of reducing glare. Tip: Try using text-mono */
+  /* border */
+  --gel-border-muted: var(--gel-primitive-wbc-muted-500); /* For borders that require more emphasis. Use with caution and in accordance with the brand guidelines. */
+  --gel-border-muted-strong: var(--gel-primitive-wbc-muted-400); /* Replaces the current Border Dark colour style. Use for UI components that require accessible contrast ratios eg. Inputs, Selects etc */
+  --gel-border-muted-mild: var(--gel-primitive-wbc-muted-300); /* Reserved do not use. */
+  --gel-border-muted-soft: var(--gel-primitive-wbc-muted-200); /* Replaces the current Border colour style. Use for UI components and page elements that don’t require accessible borders - Selectors, Flexi-cell, Tabs, section dividers etc */
+  --gel-border-hero: var(--gel-primitive-wbc-hero-500); /* For borders that require more emphasis. Use with caution and in accordance with the brand guidelines. */
+  --gel-border-primary: var(--gel-primitive-wbc-primary-500); /* For borders that require more emphasis. Use with caution and in accordance with the brand guidelines. */
+  --gel-border-pop: var(--gel-primitive-wbc-pop-500); /* For borders that require more emphasis. Use with caution and in accordance with the brand guidelines. */
+  --gel-border-holler: var(--gel-primitive-wbc-holler-500); /* For borders that require more emphasis. Note: GEL cannot endorse the use of this colour token until it&#39;s approved and documented as part of the Master Brand. This applies to all our brands. */
+  --gel-border-success: var(--gel-primitive-reserved-success-500); /* Only for success alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-border-success-mild: var(--gel-primitive-reserved-success-300); /* Only for success alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-border-info: var(--gel-primitive-reserved-info-500); /* Only for info alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-border-info-mild: var(--gel-primitive-reserved-info-300); /* Only for success info messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-border-warning: var(--gel-primitive-reserved-warning-500); /* Only for warning alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-border-warning-mild: var(--gel-primitive-reserved-warning-300); /* Only for warning alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-border-danger: var(--gel-primitive-reserved-danger-500); /* Reserved. Must only be used for the Danger alert component. */
+  --gel-border-danger-mild: var(--gel-primitive-reserved-danger-300); /* Only for danger alert messages, do not use for anything else. Tip: Use the pre-built alert message components. */
+  --gel-border-mono: var(--gel-primitive-mono-white); /* Similar to surface-mono, border-mono is white in light mode and black in dark mode. */
+  --gel-border-focus: var(--gel-primitive-wbc-holler-300); /* Reserved. Only for use with focus state keyboard navigation. */
+  /* data */
+  --gel-data-a-solid: var(--gel-primitive-wbc-primary-500); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-a-tint: var(--gel-primitive-wbc-primary-200); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-a-opacity: var(--gel-primitive-wbc-primary-opacity); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-b-solid: var(--gel-primitive-wbc-hero-500); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-b-tint: var(--gel-primitive-wbc-hero-300); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-b-opacity: var(--gel-primitive-wbc-hero-opacity); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-c-solid: var(--gel-primitive-wbc-pop-500); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-c-tint: var(--gel-primitive-wbc-pop-300); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-c-opacity: var(--gel-primitive-wbc-pop-opacity); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-d-solid: var(--gel-primitive-wbc-holler-500); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-d-tint: var(--gel-primitive-wbc-holler-200); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-d-opacity: var(--gel-primitive-wbc-holler-opacity); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-e-solid: var(--gel-primitive-wbc-sing-500); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-e-tint: var(--gel-primitive-wbc-sing-300); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-e-opacity: var(--gel-primitive-wbc-sing-opacity); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-f-solid: var(--gel-primitive-wbc-dance-500); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-f-tint: var(--gel-primitive-wbc-dance-300); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  --gel-data-f-opacity: var(--gel-primitive-wbc-dance-opacity); /* This is a reserved colour. It must only be used for data visualisation - graphs and charts. */
+  /* pictogram */
+  --gel-surface-pictogram-base: var(--gel-primitive-wbc-hero-500); /* Reserved. Only for use on Pictograms. */
+  --gel-surface-pictogram-accent: var(--gel-primitive-wbc-primary-500); /* Reserved. Only for use on Pictograms. */
+  /* state */
+  --gel-state-surface-hover-primary: var(--gel-primitive-wbc-primary-400); /* This token is for hover states. */
+  --gel-state-surface-active-primary: var(--gel-primitive-wbc-primary-200);
+  --gel-state-surface-hover-hero: var(--gel-primitive-wbc-hero-400); /* This token is for hover states. */
+  --gel-state-surface-active-hero: var(--gel-primitive-wbc-hero-300); /* This token is for hover states. */
+  --gel-state-surface-hover-primary-faint: var(--gel-primitive-wbc-primary-50); /* This token is for hover states. */
+  --gel-state-surface-active-primary-faint: var(--gel-primitive-wbc-primary-100); /* This token is for hover states. */
+  --gel-state-surface-hover-hero-faint: var(--gel-primitive-wbc-hero-50);
+  --gel-state-surface-active-hero-faint: var(--gel-primitive-wbc-hero-100);
+  --gel-state-surface-hover-muted-pale: var(--gel-primitive-wbc-muted-100); /* This token is for hover states. */
+  --gel-state-surface-active-muted-pale: var(--gel-primitive-wbc-muted-300); /* This token is for hover states. */
+  --gel-state-surface-hover-mono: var(--gel-primitive-mono-white); /* This token is for hover states. */
+  --gel-state-surface-active-mono: var(--gel-primitive-wbc-muted-200); /* This token is for hover states. */
+  /* radius */
+  --gel-radius-none: var(--gel-primitive-radius-0px);
+  --gel-radius-sm: var(--gel-primitive-radius-3px);
+  --gel-radius-md: var(--gel-primitive-radius-4px);
+  --gel-radius-lg: var(--gel-primitive-radius-5px);
+  --gel-radius-xl: var(--gel-primitive-radius-6px);
+  --gel-radius-2xl: var(--gel-primitive-radius-8px);
+  --gel-radius-3xl: var(--gel-primitive-radius-12px);
+  --gel-radius-4xl: var(--gel-primitive-radius-16px);
+  --gel-radius-5xl: var(--gel-primitive-radius-24px);
+  --gel-radius-full: var(--gel-primitive-radius-999px);
+}

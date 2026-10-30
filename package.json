@@ -1,0 +1,28 @@
+{
+  "name": "a2ui-westpac",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A2UI x Material 3 x Westpac GEL — a thinking experiment in agent-composed interfaces",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run tokens && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tokens": "node scripts/gel-tokens.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@a2ui/lit": "^0.14.0",
+    "@a2ui/markdown-it": "^0.2.2",
+    "@a2ui/web_core": "^0.14.0",
+    "@lit/context": "^1.1.6",
+    "@material/web": "^2.5.0",
+    "@westpac/style-config": "^1.0.2",
+    "lit": "^3.3.3",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vite": "^8.3.5"
+  }
+}

@@ -1,0 +1,509 @@
+/*
+ * The shell's own chrome. Deliberately unbranded and quiet so the stage, where
+ * the surfaces render, is the only thing wearing a design system.
+ */
+:root {
+  --shell-bg: #f6f4ee;
+  --shell-panel: #fffdf8;
+  --shell-ink: #0a131d;
+  --shell-muted: #6b7280;
+  --shell-line: #e4e1d8;
+  --shell-accent: #0a131d;
+  --shell-user: #e9e5da;
+  --shell-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --shell-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --shell-radius: 10px;
+}
+[data-mode='dark'] {
+  --shell-bg: #0b1119;
+  --shell-panel: #111a24;
+  --shell-ink: #e8e4dd;
+  --shell-muted: #8893a2;
+  --shell-line: #233041;
+  --shell-accent: #e8e4dd;
+  --shell-user: #1c2733;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+body {
+  font-family: var(--shell-sans);
+  background: var(--shell-bg);
+  color: var(--shell-ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a2w-shell {
+  display: grid;
+  /* minmax(0, 1fr): never let content contributions (the chip row, a wide
+     surface) size the column past the viewport. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100dvh;
+}
+body {
+  overflow-x: hidden;
+}
+
+/* Top bar ------------------------------------------------------------------ */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--shell-line);
+  background: var(--shell-panel);
+}
+.brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.brand-title {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.brand-sub {
+  font-size: 0.8rem;
+  color: var(--shell-muted);
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--shell-line);
+  border-radius: 999px;
+  background: var(--shell-bg);
+}
+.seg button,
+.ghost,
+.chip,
+.tabs button {
+  white-space: nowrap;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--shell-ink);
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.seg button.on {
+  background: var(--shell-accent);
+  color: var(--shell-bg);
+}
+.ghost {
+  border: 1px solid var(--shell-line);
+}
+.ghost:disabled,
+.chip:disabled,
+.send:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.ghost.small {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+}
+
+/* Layout ------------------------------------------------------------------- */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
+  min-height: 0;
+}
+.split.inspector-hidden {
+  grid-template-columns: minmax(0, 1fr);
+}
+.stage {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 0;
+  min-width: 0;
+  border-right: 1px solid var(--shell-line);
+}
+.stage-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 20px;
+  font-size: 0.78rem;
+  color: var(--shell-muted);
+  border-bottom: 1px solid var(--shell-line);
+}
+.transcript {
+  overflow-y: auto;
+  padding: 24px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scroll-behavior: smooth;
+}
+
+/* Turns -------------------------------------------------------------------- */
+.turn.user {
+  display: flex;
+  justify-content: flex-end;
+}
+.turn.user .bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 18px 18px 4px 18px;
+  background: var(--shell-user);
+}
+.turn.agent {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 640px;
+}
+.thinking {
+  margin: 0;
+  padding: 0 0 0 14px;
+  border-left: 2px solid var(--shell-line);
+  list-style: none;
+  color: var(--shell-muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+.thinking li {
+  animation: rise 0.35s ease-out both;
+}
+.say {
+  margin: 0;
+}
+.surface-host {
+  animation: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  /* The one place the design system is allowed to speak. */
+  font-family: var(--md-ref-typeface-plain, var(--shell-sans));
+  color: var(--md-sys-color-on-surface, var(--shell-ink));
+}
+.surface-host.gone {
+  font-size: 0.8rem;
+  color: var(--shell-muted);
+  border: 1px dashed var(--shell-line);
+  border-radius: var(--shell-radius);
+  padding: 10px 12px;
+}
+a2ui-surface {
+  display: block;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Composer ----------------------------------------------------------------- */
+.composer {
+  min-width: 0;
+  padding: 10px 20px 16px;
+  border-top: 1px solid var(--shell-line);
+  background: var(--shell-panel);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  border: 1px solid var(--shell-line);
+  font-size: 0.8rem;
+}
+.chip:hover:not(:disabled) {
+  background: var(--shell-user);
+}
+.composer-row {
+  display: flex;
+  gap: 8px;
+}
+.composer-row input {
+  flex: 1;
+  font: inherit;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--shell-line);
+  background: var(--shell-bg);
+  color: var(--shell-ink);
+}
+.composer-row input:focus-visible,
+.raw:focus-visible,
+.data-block textarea:focus-visible {
+  outline: 2px solid var(--shell-accent);
+  outline-offset: 1px;
+}
+.send {
+  appearance: none;
+  border: 0;
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--shell-accent);
+  color: var(--shell-bg);
+  cursor: pointer;
+}
+
+/* Inspector ---------------------------------------------------------------- */
+.inspector {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  background: var(--shell-panel);
+}
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 8px 12px 0;
+  border-bottom: 1px solid var(--shell-line);
+}
+.tabs button {
+  border-radius: 8px 8px 0 0;
+  color: var(--shell-muted);
+}
+.tabs button.on {
+  color: var(--shell-ink);
+  box-shadow: inset 0 -2px 0 var(--shell-accent);
+}
+.panel {
+  overflow-y: auto;
+  padding: 16px;
+  font-size: 0.9rem;
+}
+.hint {
+  margin: 0 0 12px;
+  color: var(--shell-muted);
+  font-size: 0.8rem;
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.check,
+.speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+.speed select {
+  font: inherit;
+  font-size: 0.8rem;
+  background: var(--shell-bg);
+  color: var(--shell-ink);
+  border: 1px solid var(--shell-line);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+.stream {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.entry summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--shell-mono);
+  font-size: 0.75rem;
+  list-style: none;
+}
+.entry summary::-webkit-details-marker {
+  display: none;
+}
+.entry summary:hover {
+  background: var(--shell-bg);
+}
+.entry .dir {
+  width: 1.2em;
+  text-align: center;
+  color: var(--shell-muted);
+}
+.entry.out .dir {
+  color: #c53b00;
+}
+.entry.you .dir {
+  color: #0074c4;
+}
+.entry.error .dir {
+  color: #c40000;
+}
+.entry .label {
+  flex: 1;
+}
+.entry .sid {
+  color: var(--shell-muted);
+}
+.entry time {
+  color: var(--shell-muted);
+}
+.entry pre,
+.raw,
+.data-block textarea {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--shell-line);
+  background: var(--shell-bg);
+  color: var(--shell-ink);
+  font-family: var(--shell-mono);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.entry pre {
+  margin: 4px 0 8px;
+  max-height: 320px;
+  overflow: auto;
+}
+.raw,
+.data-block textarea {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+}
+.data-block {
+  margin-bottom: 16px;
+}
+.data-block header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.data-block code {
+  font-family: var(--shell-mono);
+  font-size: 0.78rem;
+}
+.error {
+  color: #c40000;
+  font-size: 0.8rem;
+}
+
+/* Premise ------------------------------------------------------------------ */
+.premise {
+  max-width: 44ch;
+  font-size: 0.95rem;
+}
+.premise-kicker {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--shell-muted);
+}
+.premise h2 {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.premise h3 {
+  margin: 22px 0 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--shell-muted);
+}
+.premise p,
+.premise li {
+  margin: 0 0 10px;
+}
+.premise ol,
+.premise ul {
+  padding-left: 1.2em;
+}
+.premise a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+.premise-foot {
+  margin-top: 20px;
+  font-size: 0.8rem;
+  color: var(--shell-muted);
+}
+
+/* Narrow screens ----------------------------------------------------------- */
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) minmax(0, 45vh);
+  }
+  .split.inspector-hidden {
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .stage {
+    border-right: 0;
+    border-bottom: 1px solid var(--shell-line);
+  }
+  .turn.user .bubble {
+    max-width: 85%;
+  }
+  .transcript {
+    padding: 16px 16px 8px;
+  }
+  .composer,
+  .stage-head {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .topbar {
+    padding: 10px 16px;
+  }
+  .controls {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+  .chip {
+    flex: 0 0 auto;
+  }
+}

@@ -1,0 +1,6 @@
+<resources>
+    <!-- Compose owns the theme; this only keeps the window from flashing. -->
+    <style name="Theme.A2uiWestpac" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

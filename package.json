@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "A2UI x Material 3 x Westpac GEL — a thinking experiment in agent-composed interfaces",
+  "description": "A2UI x Material 3 x Westpac GEL \u2014 a thinking experiment in agent-composed interfaces",
   "scripts": {
     "dev": "vite",
     "build": "npm run tokens && tsc --noEmit && vite build",
@@ -24,5 +24,8 @@
   "devDependencies": {
     "typescript": "~5.9.3",
     "vite": "^8.3.5"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   }
 }

@@ -10,6 +10,8 @@ components whose Material 3 system tokens are mapped, one by one, onto
 the published `@westpac/style-config` package. The agent has never heard of
 Westpac. Flip the renderer and the stream does not change by a byte.
 
+Needs Node 22 (or 20.19+); there is an `.nvmrc`.
+
 ```
 npm install
 npm run dev        # http://localhost:5173

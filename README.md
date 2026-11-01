@@ -23,9 +23,10 @@ reference processor with zero errors. The Compose layer is unverified. Open it
 in Android Studio and sync. Expect the first build to want
 a nudge or two, most likely one of:
 
-- `compileSdk`: the a2ui preview is compiled against SDK 37.1. If sync asks,
-  add `compileSdkMinor = 1` in `app/build.gradle.kts` (AGP 8.12+), or move to
-  the AGP 9 `compileSdk { version = release(37) { minorApiLevel = 1 } }` form.
+- Android Gradle Plugin: the a2ui preview's AAR metadata requires AGP 9.1+,
+  so the project is on AGP 9.5 with Gradle 9.8 and built-in Kotlin (no
+  `org.jetbrains.kotlin.android` plugin). `compileSdk = 37` plus
+  `compileSdkMinor = 1` matches the SDK 37.1 the libraries were built against.
 - Compose versions: `material3-a2ui` requires Compose 1.13.0-alpha03 and
   Material 3 1.5.0-alpha28 or newer. They are pinned in
   `gradle/libs.versions.toml`; raise them if a newer alpha is required.
@@ -63,5 +64,5 @@ node scripts/gel-tokens.mjs
 
 ## Stack
 
-Kotlin 2.2, Jetpack Compose 1.13 (alpha), Material 3 1.5 (alpha),
+AGP 9.5 with built-in Kotlin (Compose compiler plugin 2.4), Jetpack Compose 1.13 (alpha), Material 3 1.5 (alpha),
 `androidx.a2ui` 1.0.0-alpha02, `@westpac/style-config` 1.0 for tokens. Min SDK 26.

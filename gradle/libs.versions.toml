@@ -1,9 +1,11 @@
 # Pinned for the androidx A2UI preview. material3-a2ui 1.0.0-alpha02 is built
-# against Compose 1.13.0-alpha03 and Material 3 1.5.0-alpha28, so those are the
-# floors here; Gradle will not resolve lower.
+# against Compose 1.13.0-alpha03 and Material 3 1.5.0-alpha28 and its AAR
+# metadata demands Android Gradle Plugin 9.1+, so those are the floors here;
+# Gradle will not resolve lower. AGP 9 brings built-in Kotlin: no
+# org.jetbrains.kotlin.android plugin, only the Compose compiler plugin.
 [versions]
-agp = "8.13.0"
-kotlin = "2.2.21"
+agp = "9.5.0"
+kotlin = "2.4.21"
 coroutines = "1.10.2"
 activityCompose = "1.11.0"
 lifecycle = "2.9.4"
@@ -30,5 +32,4 @@ a2ui-compose-ui = { group = "androidx.a2ui.compose", name = "compose-ui", versio
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

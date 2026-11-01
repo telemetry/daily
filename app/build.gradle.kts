@@ -1,14 +1,13 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "com.telemetry.a2uiwestpac"
-    // The a2ui preview libraries are compiled against SDK 37.1. If Android
-    // Studio asks for the minor level, add `compileSdkMinor = 1` (AGP 8.12+).
+    // The a2ui preview libraries are compiled against SDK 37.1.
     compileSdk = 37
+    compileSdkMinor = 1
 
     defaultConfig {
         applicationId = "com.telemetry.a2uiwestpac"
@@ -28,13 +27,10 @@ android {
         compose = true
     }
 
+    // Built-in Kotlin (AGP 9) takes jvmTarget from targetCompatibility.
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 }
 
